@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nauka Czytania dla Dzieci z Głosem - Zapis Postępów</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .option-button {
+            transition: transform 0.1s ease-in-out, background-color 0.2s ease;
+        }
+        .option-button:hover {
+            transform: scale(1.05);
+        }
+        .option-button:active {
+            transform: scale(0.98);
+        }
+        .correct-answer {
+            animation: correctAnswerPulse 0.5s ease-in-out;
+        }
+        .incorrect-answer {
+            animation: incorrectAnswerShake 0.5s ease-in-out;
+        }
+        @keyframes correctAnswerPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        @keyframes incorrectAnswerShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        #target-letter { /* Używane też dla sylab i słów */
+            cursor: pointer; 
+            user-select: none; 
+        }
+        #target-letter:hover {
+            opacity: 0.8;
+        }
+        #persistent-master-mode-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000; 
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-600">
+
+    <div id="game-container" class="flex flex-col items-center justify-center min-h-screen p-4 text-white">
+
+        <div id="start-screen" class="text-center"> <!-- Początkowo ukryty, jeśli jest zapisana gra -->
+            <h1 class="text-5xl sm:text-6xl font-black mb-6 drop-shadow-lg">Nauka Czytania!</h1>
+            <p class="text-xl sm:text-2xl mb-8">Zaczynamy przygodę z literkami, sylabami i słowami!</p>
+            <button id="start-button" class="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold py-3 px-8 sm:py-4 sm:px-10 rounded-full text-2xl sm:text-3xl shadow-xl transform hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-yellow-300 mb-4">
+                Start! (Poziom 1)
+            </button>
+            </div>
+
+        <div id="game-content" class="hidden w-full max-w-2xl">
+            <div id="game-header" class="text-center mb-6">
+                 <h2 id="level-title" class="text-4xl sm:text-5xl font-black text-white drop-shadow-md">Poziom 1: Jaka to litera?</h2>
+            </div>
+
+            <div id="game-area" class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl text-center text-gray-800">
+                <div class="w-full bg-gray-200 rounded-full h-5 mb-6 shadow-inner">
+                    <div id="progress-bar" class="bg-green-500 h-5 rounded-full transition-all duration-500 ease-out" style="width: 0%;"></div>
+                </div>
+
+                <div id="instruction" class="text-xl sm:text-2xl text-gray-700 mb-2">Posłuchaj i wybierz pokazaną literę:</div>
+                <div id="target-letter" class="font-black text-indigo-600 mb-8 break-all h-32 flex items-center justify-center" title="Kliknij, aby usłyszeć">A</div>
+
+                <div id="options-container" class="grid grid-cols-3 gap-3 sm:gap-4 mb-8">
+                </div>
+
+                <div id="feedback" class="text-2xl sm:text-3xl font-semibold h-10 mb-4"></div>
+
+                <div id="score-container" class="text-xl sm:text-2xl text-gray-700">
+                    Punkty: <span id="score" class="font-bold">0</span>
+                </div>
+            </div>
+        </div>
+
+        <button id="persistent-master-mode-button" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 rounded-full text-lg sm:text-xl shadow-lg transform hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-purple-400">
+            Tryb Mistrza
+        </button>
+
+        <div id="end-game-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div class="bg-white p-8 sm:p-10 rounded-xl shadow-2xl text-center text-gray-800 w-full max-w-md">
+                <div id="end-game-message" class="text-3xl sm:text-4xl font-bold text-green-600 mb-6">Gratulacje!</div>
+                <div id="final-score" class="text-2xl sm:text-3xl text-gray-800 mb-8">Twój wynik: <span id="final-score-value" class="font-bold">0</span></div>
+                <button id="restart-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-xl sm:text-2xl focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    Zagraj Ponownie (Poziom 1)
+                </button>
+            </div>
+        </div>
+
+        <div id="level-up-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div class="bg-white p-8 sm:p-10 rounded-xl shadow-2xl text-center text-gray-800 w-full max-w-md">
+                <div id="level-up-title" class="text-3xl sm:text-4xl font-bold text-blue-600 mb-4">Poziom Wyżej!</div>
+                <img src="https://placehold.co/100x100/34D399/FFFFFF?text=🏆" alt="Trofeum" class="mx-auto mb-4 rounded-full" onerror="this.src='https://placehold.co/100x100/CCCCCC/FFFFFF?text=Error'; this.alt='Błąd ładowania obrazka trofeum'">
+                <p id="level-up-message" class="text-xl mb-4">Świetna robota! Odblokowałeś Poziom 2!</p>
+                <div class="text-2xl sm:text-3xl text-gray-800 mb-8">Wynik w poprzednim poziomie: <span id="previous-level-final-score-value" class="font-bold">0</span></div>
+                <button id="start-next-level-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-xl sm:text-2xl focus:outline-none focus:ring-4 focus:ring-green-300 mr-2 mb-2 sm:mb-0">
+                    Start Poziom 2
+                </button>
+                <button id="restart-game-from-level-up-button" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg text-xl sm:text-2xl focus:outline-none focus:ring-4 focus:ring-gray-300">
+                    Zagraj od początku (Poziom 1)
+                </button>
+            </div>
+        </div>
+
+        <div id="master-mode-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[1050]"> 
+            <div class="bg-white p-8 sm:p-10 rounded-xl shadow-2xl text-center text-gray-800 w-full max-w-lg">
+                <div class="text-3xl sm:text-4xl font-bold text-purple-700 mb-6">Tryb Mistrza</div>
+                <p class="text-xl mb-6">Wybierz poziom, od którego chcesz zacząć:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button id="start-level-1-master-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-blue-300 w-full">
+                        1 (Litery)
+                    </button>
+                    <button id="start-level-2-master-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-green-300 w-full">
+                        2 (Litery, słuch)
+                    </button>
+                    <button id="start-level-3-master-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-red-300 w-full">
+                        3 (Litery PL, słuch)
+                    </button>
+                    <button id="start-level-4-master-button" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-yellow-300 w-full">
+                        4 (Sylaby 2-lit.)
+                    </button>
+                    <button id="start-level-5-master-button" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-pink-300 w-full">
+                        5 (Sylaby 2-lit., słuch)
+                    </button>
+                    <button id="start-level-6-master-button" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-indigo-300 w-full">
+                        6 (Sylaby 3-lit.)
+                    </button>
+                    <button id="start-level-7-master-button" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-teal-300 w-full">
+                        7 (Sylaby 3-lit., słuch)
+                    </button>
+                    <button id="start-level-8-master-button" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-orange-300 w-full">
+                        8 (Sylaby 2-lit. PL, słuch)
+                    </button>
+                    <button id="start-level-9-master-button" class="bg-lime-500 hover:bg-lime-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-lime-300 w-full">
+                        9 (Sylaby 3-lit. PL, słuch)
+                    </button>
+                    <button id="start-level-10-master-button" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-cyan-300 w-full">
+                        10 (Słowa 2-syl., słuch)
+                    </button>
+                </div>
+                 <button id="close-master-mode-button" class="mt-6 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    Anuluj
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Kontynuacji Gry -->
+        <div id="resume-game-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[1060]">
+            <div class="bg-white p-8 sm:p-10 rounded-xl shadow-2xl text-center text-gray-800 w-full max-w-md">
+                <div class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">Witaj z powrotem!</div>
+                <p id="resume-game-message" class="text-xl mb-6">Znaleziono zapisaną grę. Chcesz kontynuować?</p>
+                <div class="text-lg mb-4">Poziom: <span id="resume-level" class="font-bold"></span>, Punkty: <span id="resume-score" class="font-bold"></span></div>
+                <button id="resume-yes-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-xl sm:text-2xl focus:outline-none focus:ring-4 focus:ring-green-300 mr-2">
+                    Tak, kontynuuj
+                </button>
+                <button id="resume-no-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg text-xl sm:text-2xl focus:outline-none focus:ring-4 focus:ring-red-300">
+                    Nie, zacznij od nowa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementy DOM
+        const startScreen = document.getElementById('start-screen');
+        const gameContent = document.getElementById('game-content');
+        const startButton = document.getElementById('start-button');
+        const persistentMasterModeButton = document.getElementById('persistent-master-mode-button');
+        const levelTitleElement = document.getElementById('level-title');
+        
+        const targetLetterDisplay = document.getElementById('target-letter'); 
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackDisplay = document.getElementById('feedback');
+        const scoreDisplay = document.getElementById('score');
+        const progressBar = document.getElementById('progress-bar');
+        const instructionTextElement = document.getElementById('instruction');
+        
+        const endGameModal = document.getElementById('end-game-modal');
+        const endGameMessage = document.getElementById('end-game-message');
+        const finalScoreValueDisplay = document.getElementById('final-score-value');
+        const restartButton = document.getElementById('restart-button');
+
+        const levelUpModal = document.getElementById('level-up-modal');
+        const levelUpTitle = document.getElementById('level-up-title');
+        const levelUpMessage = document.getElementById('level-up-message');
+        const previousLevelFinalScoreDisplay = document.getElementById('previous-level-final-score-value');
+        const startNextLevelButton = document.getElementById('start-next-level-button');
+        const restartGameFromLevelUpButton = document.getElementById('restart-game-from-level-up-button');
+
+        const masterModeModal = document.getElementById('master-mode-modal');
+        const startLevel1MasterButton = document.getElementById('start-level-1-master-button');
+        const startLevel2MasterButton = document.getElementById('start-level-2-master-button');
+        const startLevel3MasterButton = document.getElementById('start-level-3-master-button');
+        const startLevel4MasterButton = document.getElementById('start-level-4-master-button');
+        const startLevel5MasterButton = document.getElementById('start-level-5-master-button');
+        const startLevel6MasterButton = document.getElementById('start-level-6-master-button');
+        const startLevel7MasterButton = document.getElementById('start-level-7-master-button');
+        const startLevel8MasterButton = document.getElementById('start-level-8-master-button'); 
+        const startLevel9MasterButton = document.getElementById('start-level-9-master-button'); 
+        const startLevel10MasterButton = document.getElementById('start-level-10-master-button'); 
+        const closeMasterModeButton = document.getElementById('close-master-mode-button');
+
+        // Modal kontynuacji
+        const resumeGameModal = document.getElementById('resume-game-modal');
+        const resumeLevelDisplay = document.getElementById('resume-level');
+        const resumeScoreDisplay = document.getElementById('resume-score');
+        const resumeYesButton = document.getElementById('resume-yes-button');
+        const resumeNoButton = document.getElementById('resume-no-button');
+
+
+        let correctSound, incorrectSound;
+        let audioInitialized = false;
+        const synth = window.speechSynthesis;
+        let voices = [];
+
+        let currentLevel = 1;
+        const LEVEL_UP_THRESHOLD = 0.9; 
+        const NUM_OPTIONS = 3; 
+
+        // Klucze localStorage
+        const STORAGE_KEY_LEVEL = 'readingGame_currentLevel';
+        const STORAGE_KEY_SCORE = 'readingGame_currentScore';
+
+        const basicLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'W', 'Y', 'Z'];
+        const polishChars = ['Ą', 'Ć', 'Ę', 'Ł', 'Ń', 'Ó', 'Ś', 'Ź', 'Ż'];
+        
+        const lettersForLevel1And2 = [...basicLetters];
+        const distractorLettersForLevel1And2 = [...basicLetters];
+
+        const lettersForLevel3 = shuffleArray([...basicLetters, ...polishChars]);
+        const distractorLettersForLevel3 = [...basicLetters, ...polishChars];
+
+        const twoLetterSyllablesNoPolish = ['MA', 'TA', 'LA', 'DA', 'PA', 'BA', 'KO', 'TO', 'LO', 'DO', 'PO', 'BO', 'ME', 'TE', 'LE', 'DE', 'PE', 'BE', 'MU', 'TU', 'LU', 'DU', 'PU', 'BU', 'SA', 'ZA', 'RA', 'FA', 'WA'];
+        const distractorTwoLetterSyllablesNoPolish = [...twoLetterSyllablesNoPolish];
+
+        const threeLetterSyllablesNoPolish = ['MAK', 'KOT', 'LAS', 'DOM', 'TOR', 'RAK', 'NOS', 'LIS', 'LOK', 'BAL', 'PAS', 'SEN', 'SOK', 'TYL', 'SAD', 'MOL', 'LOT', 'RAM', 'NUR', 'KAS', 'DAL', 'KOS', 'MYK', 'RYM', 'SER'];
+        const distractorThreeLetterSyllablesNoPolish = [...threeLetterSyllablesNoPolish];
+
+        const twoLetterSyllablesWithPolish = ['ŁA', 'MĄ', 'SĘ', 'CIĘ', 'ŻY', 'RÓ', 'BÓ', 'GĘ', 'ŻÓ', 'ŚI', 'NIĄ', 'DZIĘ', 'PÓ', 'WĘ', 'ZIĄ'];
+        const distractorTwoLetterSyllablesWithPolish = shuffleArray([...twoLetterSyllablesWithPolish, ...twoLetterSyllablesNoPolish]); 
+
+        const threeLetterSyllablesWithPolish = ['ŁOŚ', 'MĄŻ', 'WĄŻ', 'ŻÓŁĆ', 'ĆMA', 'DĄB', 'KRĄG', 'MÓZG', 'PĄK', 'RÓG', 'SĄD', 'ŚMIG', 'WĘCH', 'ŹLE', 'ŻLEB'];
+        const distractorThreeLetterSyllablesWithPolish = shuffleArray([...threeLetterSyllablesWithPolish, ...threeLetterSyllablesNoPolish]);
+
+        const twoSyllableWordsNoPolish = ['MAMA', 'TATA', 'LALA', 'KURA', 'DOMY', 'KOTY', 'LASY', 'RYBA', 'SOWA', 'FOKA', 'MAPA', 'NOGA', 'OKNO', 'AUTO', 'LATO', 'BALON', 'ROBOT', 'KAWA', 'MASA', 'PUMA'];
+        const distractorTwoSyllableWordsNoPolish = [...twoSyllableWordsNoPolish];
+
+
+        function populateVoiceList() {
+            if(typeof speechSynthesis === 'undefined') return;
+            voices = synth.getVoices();
+            if (voices.length === 0 && synth.onvoiceschanged !== undefined) {
+                synth.onvoiceschanged = populateVoiceList;
+            }
+        }
+        populateVoiceList();
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+
+
+        function speakText(text) { 
+            if (synth.speaking) synth.cancel();
+            if (text === '') return;
+            const textToSpeak = text.toLowerCase(); 
+            const utterThis = new SpeechSynthesisUtterance(textToSpeak);
+            utterThis.lang = 'pl-PL';
+
+            const PREFERRED_VOICE_NAME = ""; 
+            
+            let selectedVoice = null;
+            if (PREFERRED_VOICE_NAME) {
+                selectedVoice = voices.find(voice => voice.name === PREFERRED_VOICE_NAME && voice.lang === 'pl-PL');
+            }
+
+            if (!selectedVoice) { 
+                selectedVoice = voices.find(voice => voice.lang === 'pl-PL' && voice.localService); 
+                if (!selectedVoice) {
+                    selectedVoice = voices.find(voice => voice.lang === 'pl-PL'); 
+                }
+            }
+            
+            if (selectedVoice) {
+                utterThis.voice = selectedVoice;
+            }
+            
+            utterThis.pitch = 1; 
+            utterThis.rate = 0.8; 
+            synth.speak(utterThis);
+        }
+
+        function initializeAudio() {
+            if (typeof Tone === 'undefined' || audioInitialized) return;
+            Tone.start().then(() => {
+                correctSound = new Tone.Synth({ oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.01, release: 0.2 } }).toDestination();
+                incorrectSound = new Tone.Synth({ oscillator: { type: 'square' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.01, release: 0.2 } }).toDestination();
+                audioInitialized = true;
+            }).catch(e => console.error("Tone.start() failed:", e));
+        }
+        
+        function playCorrectSound() {
+            if (correctSound && audioInitialized && Tone.context.state === 'running') correctSound.triggerAttackRelease("C5", "8n", Tone.now());
+        }
+        function playIncorrectSound() {
+            if (incorrectSound && audioInitialized && Tone.context.state === 'running') incorrectSound.triggerAttackRelease("A2", "8n", Tone.now());
+        }
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let questionsOrder = []; 
+
+        function shuffleArray(array) {
+            let newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function initGame(level, resumeScore = 0) { // Dodano resumeScore
+            currentLevel = level;
+            currentQuestionIndex = 0;
+            score = resumeScore; // Ustaw wynik, jeśli wznawiamy
+            scoreDisplay.textContent = score;
+            feedbackDisplay.textContent = '';
+            progressBar.style.width = '0%'; // Pasek postępu zaczyna się od 0 dla każdego poziomu
+            
+            localStorage.setItem(STORAGE_KEY_LEVEL, currentLevel);
+            localStorage.setItem(STORAGE_KEY_SCORE, score); // Zapisz początkowy wynik (0 lub wznowiony)
+
+            targetLetterDisplay.classList.remove('text-8xl', 'sm:text-9xl', 'text-6xl', 'sm:text-7xl', 'text-5xl', 'sm:text-6xl', 'text-4xl', 'sm:text-5xl'); 
+
+            if (currentLevel === 1) {
+                levelTitleElement.textContent = 'Poziom 1 (Litery bez PL)';
+                instructionTextElement.textContent = 'Posłuchaj i wybierz pokazaną literę:';
+                targetLetterDisplay.style.visibility = 'visible';
+                targetLetterDisplay.setAttribute('title', 'Kliknij, aby usłyszeć literę');
+                targetLetterDisplay.classList.add('text-8xl', 'sm:text-9xl');
+                questionsOrder = shuffleArray(lettersForLevel1And2);
+            } else if (currentLevel === 2) {
+                levelTitleElement.textContent = 'Poziom 2 (Litery bez PL, słuch)';
+                instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną literę:';
+                targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
+                targetLetterDisplay.classList.add('text-8xl', 'sm:text-9xl'); 
+                questionsOrder = shuffleArray(lettersForLevel1And2);
+            } else if (currentLevel === 3) {
+                levelTitleElement.textContent = 'Poziom 3 (Litery z PL, słuch)';
+                instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną literę (z polskimi znakami!):';
+                targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
+                targetLetterDisplay.classList.add('text-8xl', 'sm:text-9xl'); 
+                questionsOrder = shuffleArray(lettersForLevel3);
+            } else if (currentLevel === 4) {
+                levelTitleElement.textContent = 'Poziom 4 (Sylaby 2-lit. bez PL)';
+                instructionTextElement.textContent = 'Posłuchaj i wybierz pokazaną sylabę:';
+                targetLetterDisplay.style.visibility = 'visible';
+                targetLetterDisplay.setAttribute('title', 'Kliknij, aby usłyszeć sylabę');
+                targetLetterDisplay.classList.add('text-6xl', 'sm:text-7xl'); 
+                questionsOrder = shuffleArray(twoLetterSyllablesNoPolish);
+            } else if (currentLevel === 5) {
+                levelTitleElement.textContent = 'Poziom 5 (Sylaby 2-lit. bez PL, słuch)';
+                instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę:';
+                targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
+                targetLetterDisplay.classList.add('text-6xl', 'sm:text-7xl'); 
+                questionsOrder = shuffleArray(twoLetterSyllablesNoPolish);
+            } else if (currentLevel === 6) {
+                levelTitleElement.textContent = 'Poziom 6 (Sylaby 3-lit. bez PL)';
+                instructionTextElement.textContent = 'Posłuchaj i wybierz pokazaną sylabę:';
+                targetLetterDisplay.style.visibility = 'visible';
+                targetLetterDisplay.setAttribute('title', 'Kliknij, aby usłyszeć sylabę');
+                targetLetterDisplay.classList.add('text-5xl', 'sm:text-6xl'); 
+                questionsOrder = shuffleArray(threeLetterSyllablesNoPolish);
+            } else if (currentLevel === 7) {
+                levelTitleElement.textContent = 'Poziom 7 (Sylaby 3-lit. bez PL, słuch)';
+                instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę:';
+                targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
+                targetLetterDisplay.classList.add('text-5xl', 'sm:text-6xl'); 
+                questionsOrder = shuffleArray(threeLetterSyllablesNoPolish);
+            } else if (currentLevel === 8) {
+                levelTitleElement.textContent = 'Poziom 8 (Sylaby 2-lit. PL, słuch)';
+                instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę (z polskimi znakami!):';
+                targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
+                targetLetterDisplay.classList.add('text-6xl', 'sm:text-7xl'); 
+                questionsOrder = shuffleArray(twoLetterSyllablesWithPolish);
+            } else if (currentLevel === 9) {
+                levelTitleElement.textContent = 'Poziom 9 (Sylaby 3-lit. PL, słuch)';
+                instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę (z polskimi znakami!):';
+                targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
+                targetLetterDisplay.classList.add('text-5xl', 'sm:text-6xl'); 
+                questionsOrder = shuffleArray(threeLetterSyllablesWithPolish);
+            } else if (currentLevel === 10) {
+                levelTitleElement.textContent = 'Poziom 10 (Słowa 2-syl. bez PL, słuch)';
+                instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszane słowo:';
+                targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
+                targetLetterDisplay.classList.add('text-4xl', 'sm:text-5xl'); 
+                questionsOrder = shuffleArray(twoSyllableWordsNoPolish);
+            }
+            
+            endGameModal.classList.add('hidden');
+            levelUpModal.classList.add('hidden');
+            masterModeModal.classList.add('hidden');
+            gameContent.classList.remove('hidden'); 
+            startScreen.classList.add('hidden'); 
+
+            if (!audioInitialized) initializeAudio();
+            if (typeof speechSynthesis !== 'undefined' && voices.length === 0) populateVoiceList();
+            
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            if (currentQuestionIndex >= questionsOrder.length) {
+                endGame();
+                return;
+            }
+
+            feedbackDisplay.textContent = ''; 
+            feedbackDisplay.className = 'text-2xl sm:text-3xl font-semibold h-10 mb-4'; 
+
+            const correctItem = questionsOrder[currentQuestionIndex]; 
+            
+            if (currentLevel === 1 || currentLevel === 4 || currentLevel === 6) { 
+                let fontSizeClass = 'text-8xl sm:text-9xl'; 
+                if (currentLevel === 4) fontSizeClass = 'text-6xl sm:text-7xl'; 
+                if (currentLevel === 6) fontSizeClass = 'text-5xl sm:text-6xl'; 
+                targetLetterDisplay.innerHTML = `<span class="${fontSizeClass}">${correctItem}</span>`; 
+                targetLetterDisplay.style.visibility = 'visible';
+            } 
+            else if (currentLevel === 2 || currentLevel === 3 || currentLevel === 5 || currentLevel === 7 || currentLevel === 8 || currentLevel === 9 || currentLevel === 10) { 
+                targetLetterDisplay.innerHTML = '<span class="text-7xl text-indigo-500">🔊</span>'; 
+                 targetLetterDisplay.style.visibility = 'visible'; 
+            }
+            
+            setTimeout(() => speakText(correctItem), 150); 
+
+            const options = generateOptions(correctItem); 
+            optionsContainer.innerHTML = ''; 
+
+            options.forEach(optionItem => {
+                const button = document.createElement('button');
+                button.textContent = optionItem; 
+                let buttonFontSizeClass = 'text-4xl sm:text-5xl'; 
+                if ((currentLevel === 4 || currentLevel === 5 || currentLevel === 8) && optionItem.length > 1) buttonFontSizeClass = 'text-3xl sm:text-4xl'; 
+                if ((currentLevel === 6 || currentLevel === 7 || currentLevel === 9) && optionItem.length > 2) buttonFontSizeClass = 'text-2xl sm:text-3xl'; 
+                if (currentLevel === 10 && optionItem.length > 3) buttonFontSizeClass = 'text-xl sm:text-2xl';
+
+                button.className = `option-button bg-sky-500 hover:bg-sky-600 text-white font-bold py-6 sm:py-8 ${buttonFontSizeClass} rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-sky-300`;
+                button.addEventListener('click', () => handleOptionClick(optionItem, correctItem, button));
+                optionsContainer.appendChild(button);
+            });
+
+            const progressPercentage = (currentQuestionIndex / questionsOrder.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+        }
+
+        function generateOptions(correctItem) {
+            const options = new Set();
+            options.add(correctItem);
+
+            let distractorSource;
+            if (currentLevel === 1 || currentLevel === 2) {
+                distractorSource = distractorLettersForLevel1And2;
+            } else if (currentLevel === 3) { 
+                distractorSource = distractorLettersForLevel3;
+            } else if (currentLevel === 4 || currentLevel === 5) {
+                distractorSource = distractorTwoLetterSyllablesNoPolish;
+            } else if (currentLevel === 6 || currentLevel === 7) {
+                distractorSource = distractorThreeLetterSyllablesNoPolish;
+            } else if (currentLevel === 8) {
+                distractorSource = distractorTwoLetterSyllablesWithPolish;
+            } else if (currentLevel === 9) {
+                distractorSource = distractorThreeLetterSyllablesWithPolish;
+            } else if (currentLevel === 10) {
+                distractorSource = distractorTwoSyllableWordsNoPolish;
+            }
+
+
+            let availableDistractors = distractorSource.filter(item => item !== correctItem);
+            availableDistractors = shuffleArray(availableDistractors);
+
+            while (options.size < NUM_OPTIONS && availableDistractors.length > 0) {
+                options.add(availableDistractors.pop());
+            }
+            while (options.size < NUM_OPTIONS) { 
+                 const randomItem = distractorSource[Math.floor(Math.random() * distractorSource.length)];
+                 if (!options.has(randomItem)) { 
+                    options.add(randomItem);
+                 } else if (options.size >= distractorSource.length) { 
+                    break;
+                 }
+            }
+            return shuffleArray(Array.from(options));
+        }
+
+        function handleOptionClick(selectedItem, correctItem, buttonElement) {
+            const buttons = optionsContainer.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedItem === correctItem) {
+                feedbackDisplay.textContent = 'Świetnie!';
+                feedbackDisplay.className = 'text-2xl sm:text-3xl font-semibold h-10 mb-4 text-green-500 correct-answer';
+                buttonElement.classList.remove('bg-sky-500', 'hover:bg-sky-600');
+                buttonElement.classList.add('bg-green-500');
+                score++;
+                scoreDisplay.textContent = score;
+                playCorrectSound();
+            } else {
+                feedbackDisplay.textContent = 'Spróbuj jeszcze raz!';
+                feedbackDisplay.className = 'text-2xl sm:text-3xl font-semibold h-10 mb-4 text-red-500 incorrect-answer';
+                buttonElement.classList.remove('bg-sky-500', 'hover:bg-sky-600');
+                buttonElement.classList.add('bg-red-500');
+                playIncorrectSound();
+                buttons.forEach(btn => {
+                    if (btn.textContent === correctItem) { 
+                        btn.classList.remove('bg-sky-500', 'hover:bg-sky-600');
+                        btn.classList.add('bg-green-400', 'opacity-70'); 
+                    }
+                });
+            }
+            localStorage.setItem(STORAGE_KEY_SCORE, score); // Zapisz wynik po każdej odpowiedzi
+            currentQuestionIndex++;
+            
+            setTimeout(() => {
+                buttons.forEach(btn => btn.disabled = false); 
+                displayQuestion();
+            }, 1500); 
+        }
+
+        function endGame() {
+            const maxScore = questionsOrder.length;
+            const scorePercentage = (maxScore > 0) ? (score / maxScore) : 0;
+            progressBar.style.width = '100%';
+
+            let canLevelUp = false;
+            let nextLevel = 0;
+            let levelUpModalTitle = "";
+            let levelUpModalMessage = "";
+            let nextLevelButtonText = "";
+
+            if (currentLevel === 1 && scorePercentage >= LEVEL_UP_THRESHOLD) {
+                canLevelUp = true; nextLevel = 2; levelUpModalTitle = "Awans do Poziomu 2!"; 
+                levelUpModalMessage = "Świetna robota! Odblokowałeś Poziom 2 (litery bez PL, tylko słuch)!"; nextLevelButtonText = "Start Poziom 2";
+            } else if (currentLevel === 2 && scorePercentage >= LEVEL_UP_THRESHOLD) {
+                canLevelUp = true; nextLevel = 3; levelUpModalTitle = "Awans do Poziomu 3!";
+                levelUpModalMessage = "Super! Odblokowałeś Poziom 3 (litery z PL, tylko słuch)!"; nextLevelButtonText = "Start Poziom 3";
+            } else if (currentLevel === 3 && scorePercentage >= LEVEL_UP_THRESHOLD) {
+                canLevelUp = true; nextLevel = 4; levelUpModalTitle = "Awans do Poziomu 4!";
+                levelUpModalMessage = "Fantastycznie! Odblokowałeś Poziom 4 (sylaby 2-lit. bez PL)!"; nextLevelButtonText = "Start Poziom 4";
+            } else if (currentLevel === 4 && scorePercentage >= LEVEL_UP_THRESHOLD) {
+                canLevelUp = true; nextLevel = 5; levelUpModalTitle = "Awans do Poziomu 5!";
+                levelUpModalMessage = "Niesamowite! Odblokowałeś Poziom 5 (sylaby 2-lit. bez PL, tylko słuch)!"; nextLevelButtonText = "Start Poziom 5";
+            } else if (currentLevel === 5 && scorePercentage >= LEVEL_UP_THRESHOLD) {
+                canLevelUp = true; nextLevel = 6; levelUpModalTitle = "Awans do Poziomu 6!";
+                levelUpModalMessage = "Jesteś mistrzem! Odblokowałeś Poziom 6 (sylaby 3-lit. bez PL)!"; nextLevelButtonText = "Start Poziom 6";
+            } else if (currentLevel === 6 && scorePercentage >= LEVEL_UP_THRESHOLD) {
+                canLevelUp = true; nextLevel = 7; levelUpModalTitle = "Awans do Poziomu 7!";
+                levelUpModalMessage = "Prawdziwy ekspert! Odblokowałeś Poziom 7 (sylaby 3-lit. bez PL, tylko słuch)!"; nextLevelButtonText = "Start Poziom 7";
+            } else if (currentLevel === 7 && scorePercentage >= LEVEL_UP_THRESHOLD) {
+                canLevelUp = true; nextLevel = 8; levelUpModalTitle = "Awans do Poziomu 8!";
+                levelUpModalMessage = "Coraz lepiej! Odblokowałeś Poziom 8 (sylaby 2-lit. PL, słuch)!"; nextLevelButtonText = "Start Poziom 8";
+            } else if (currentLevel === 8 && scorePercentage >= LEVEL_UP_THRESHOLD) {
+                canLevelUp = true; nextLevel = 9; levelUpModalTitle = "Awans do Poziomu 9!";
+                levelUpModalMessage = "Doskonale! Odblokowałeś Poziom 9 (sylaby 3-lit. PL, słuch)!"; nextLevelButtonText = "Start Poziom 9";
+            } else if (currentLevel === 9 && scorePercentage >= LEVEL_UP_THRESHOLD) {
+                canLevelUp = true; nextLevel = 10; levelUpModalTitle = "Awans do Poziomu 10!";
+                levelUpModalMessage = "Już prawie koniec! Odblokowałeś Poziom 10 (słowa 2-syl. bez PL, słuch)!"; nextLevelButtonText = "Start Poziom 10";
+            }
+
+
+            if (canLevelUp) {
+                previousLevelFinalScoreDisplay.textContent = score;
+                levelUpTitle.textContent = levelUpModalTitle;
+                levelUpMessage.textContent = levelUpModalMessage;
+                startNextLevelButton.textContent = nextLevelButtonText;
+                startNextLevelButton.onclick = () => { levelUpModal.classList.add('hidden'); initGame(nextLevel); };
+                levelUpModal.classList.remove('hidden');
+            } else { 
+                finalScoreValueDisplay.textContent = score;
+                if (currentLevel === 10) {
+                    endGameMessage.textContent = "Super Mistrz Czytania! Ukończyłeś wszystkie poziomy!";
+                    localStorage.removeItem(STORAGE_KEY_LEVEL); // Wyczyść stan po ukończeniu ostatniego poziomu
+                    localStorage.removeItem(STORAGE_KEY_SCORE);
+                } else {
+                    endGameMessage.textContent = `Koniec Poziomu ${currentLevel}! Spróbuj ponownie, by odblokować kolejny!`;
+                }
+                endGameModal.classList.remove('hidden');
+            }
+        }
+
+        function checkForSavedGame() {
+            const savedLevel = localStorage.getItem(STORAGE_KEY_LEVEL);
+            const savedScore = localStorage.getItem(STORAGE_KEY_SCORE);
+
+            if (savedLevel && savedScore !== null) {
+                const levelNum = parseInt(savedLevel);
+                const scoreNum = parseInt(savedScore);
+
+                resumeLevelDisplay.textContent = levelNum;
+                resumeScoreDisplay.textContent = scoreNum;
+                resumeGameModal.classList.remove('hidden');
+                startScreen.classList.add('hidden'); 
+
+                resumeYesButton.onclick = () => {
+                    resumeGameModal.classList.add('hidden');
+                    initGame(levelNum, scoreNum); 
+                };
+
+                resumeNoButton.onclick = () => {
+                    resumeGameModal.classList.add('hidden');
+                    localStorage.removeItem(STORAGE_KEY_LEVEL);
+                    localStorage.removeItem(STORAGE_KEY_SCORE);
+                    startScreen.classList.remove('hidden'); 
+                };
+            } else {
+                startScreen.classList.remove('hidden'); 
+            }
+        }
+
+
+        // Event Listeners
+        startButton.addEventListener('click', () => {
+            localStorage.removeItem(STORAGE_KEY_LEVEL); // Rozpoczęcie nowej gry czyści zapisany stan
+            localStorage.removeItem(STORAGE_KEY_SCORE);
+            initGame(1);
+        });
+
+        persistentMasterModeButton.addEventListener('click', () => {
+            masterModeModal.classList.remove('hidden');
+        });
+
+        // Funkcja pomocnicza do startowania poziomu z Master Mode (czyści zapisany stan)
+        function startMasterLevel(level) {
+            localStorage.removeItem(STORAGE_KEY_LEVEL);
+            localStorage.removeItem(STORAGE_KEY_SCORE);
+            initGame(level);
+        }
+
+        startLevel1MasterButton.addEventListener('click', () => startMasterLevel(1));
+        startLevel2MasterButton.addEventListener('click', () => startMasterLevel(2));
+        startLevel3MasterButton.addEventListener('click', () => startMasterLevel(3));
+        startLevel4MasterButton.addEventListener('click', () => startMasterLevel(4));
+        startLevel5MasterButton.addEventListener('click', () => startMasterLevel(5));
+        startLevel6MasterButton.addEventListener('click', () => startMasterLevel(6));
+        startLevel7MasterButton.addEventListener('click', () => startMasterLevel(7));
+        startLevel8MasterButton.addEventListener('click', () => startMasterLevel(8));
+        startLevel9MasterButton.addEventListener('click', () => startMasterLevel(9));
+        startLevel10MasterButton.addEventListener('click', () => startMasterLevel(10));
+        
+        closeMasterModeButton.addEventListener('click', () => {
+            masterModeModal.classList.add('hidden');
+            // Jeśli gra nie jest aktywna (gameContent jest ukryty) I nie ma modala wznowienia, pokaż ekran startowy
+            if (gameContent.classList.contains('hidden') && resumeGameModal.classList.contains('hidden')) {
+                startScreen.classList.remove('hidden');
+            }
+        });
+
+        restartButton.addEventListener('click', () => {
+            localStorage.removeItem(STORAGE_KEY_LEVEL);
+            localStorage.removeItem(STORAGE_KEY_SCORE);
+            initGame(1);
+        });
+        
+        restartGameFromLevelUpButton.addEventListener('click', () => {
+            levelUpModal.classList.add('hidden');
+            localStorage.removeItem(STORAGE_KEY_LEVEL);
+            localStorage.removeItem(STORAGE_KEY_SCORE);
+            initGame(1); 
+        });
+
+        targetLetterDisplay.addEventListener('click', () => {
+            if (currentQuestionIndex < questionsOrder.length) { 
+                speakText(questionsOrder[currentQuestionIndex]); 
+            }
+        });
+
+        // Inicjalizacja
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList; 
+        }
+        initializeAudio(); 
+        checkForSavedGame(); // Sprawdź zapisaną grę na starcie
+
+        // gameContent.classList.add('hidden'); // Już obsługiwane przez checkForSavedGame
+        // startScreen.classList.remove('hidden'); // Już obsługiwane przez checkForSavedGame
+
+    </script>
+</body>
+</html>
