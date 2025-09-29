@@ -47,6 +47,7 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
+            box-sizing: border-box;
         }
 
         /* Improved button styles with better touch targets */
@@ -131,6 +132,7 @@
             color: #374151;
             width: 100%;
             max-width: 32rem;
+            margin-bottom: 5rem; /* Add bottom margin to prevent overlap with persistent button */
         }
 
         /* Modal improvements */
@@ -320,11 +322,15 @@
         @media (max-width: 640px) {
             .container {
                 padding: 0.5rem;
+                justify-content: flex-start;
+                padding-top: 2rem;
+                padding-bottom: 6rem; /* Extra space for persistent button */
             }
 
             .game-card {
                 padding: 1rem;
                 border-radius: 0.75rem;
+                margin-bottom: 4rem;
             }
 
             .modal-content {
@@ -365,6 +371,13 @@
                 right: 1rem;
                 font-size: 0.875rem;
                 padding: 0.5rem 1rem;
+                position: fixed;
+                z-index: 1000;
+            }
+
+            /* Ensure game card has enough space from button */
+            .game-card {
+                margin-bottom: 4rem;
             }
         }
 
@@ -395,6 +408,17 @@
 
             .modal-content {
                 padding: 1rem;
+            }
+
+            .container {
+                padding-bottom: 5rem; /* More space for button on small screens */
+            }
+
+            #persistent-master-mode-button {
+                bottom: 0.75rem;
+                right: 0.75rem;
+                font-size: 0.75rem;
+                padding: 0.375rem 0.75rem;
             }
         }
 
