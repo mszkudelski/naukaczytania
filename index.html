@@ -151,6 +151,12 @@
                     <button id="start-level-10-master-button" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-cyan-300 w-full">
                         10 (Słowa 2-syl., słuch)
                     </button>
+                    <button id="start-level-11-master-button" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-emerald-300 w-full">
+                        11 (Słowa 3-syl. PL, słuch)
+                    </button>
+                    <button id="start-level-12-master-button" class="bg-violet-500 hover:bg-violet-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-violet-300 w-full">
+                        12 (Słowa złożone, słuch)
+                    </button>
                 </div>
                  <button id="close-master-mode-button" class="mt-6 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-gray-400">
                     Anuluj
@@ -212,6 +218,8 @@
         const startLevel8MasterButton = document.getElementById('start-level-8-master-button'); 
         const startLevel9MasterButton = document.getElementById('start-level-9-master-button'); 
         const startLevel10MasterButton = document.getElementById('start-level-10-master-button'); 
+        const startLevel11MasterButton = document.getElementById('start-level-11-master-button'); 
+        const startLevel12MasterButton = document.getElementById('start-level-12-master-button'); 
         const closeMasterModeButton = document.getElementById('close-master-mode-button');
 
         // Modal kontynuacji
@@ -258,6 +266,12 @@
 
         const twoSyllableWordsNoPolish = ['MAMA', 'TATA', 'LALA', 'KURA', 'DOMY', 'KOTY', 'LASY', 'RYBA', 'SOWA', 'FOKA', 'MAPA', 'NOGA', 'OKNO', 'AUTO', 'LATO', 'BALON', 'ROBOT', 'KAWA', 'MASA', 'PUMA'];
         const distractorTwoSyllableWordsNoPolish = [...twoSyllableWordsNoPolish];
+
+        const threeSyllableWordsWithPolish = ['JABŁKO', 'ĆWIREK', 'ŹRÓDŁO', 'ŻÓŁWIE', 'KSIĄŻKA', 'ĆWICZĘ', 'ŹREBIĘ', 'ŻAGIEL', 'ŁAŃCUCH', 'ŚWIĘTO', 'ŚLICZNY', 'ŃOŃCZY', 'RÓŻOWY', 'ŚWIŃSKA', 'ĆWIERĆ'];
+        const distractorThreeSyllableWordsWithPolish = [...threeSyllableWordsWithPolish];
+
+        const complexWordsAndPhrases = ['PRZYGODA', 'KSIĄŻECZKA', 'MOTYLČEK', 'ŚLIMACZEK', 'KOLOROWY', 'WESOŁOŚĆ', 'PRZYJAŹŃ', 'MIŁOŚĆ', 'NAUKOWY', 'WIEWIÓRKA', 'DZIECIŃSTWO', 'SZCZĘŚCIE', 'ODKRYWCA', 'PODRÓŻNIK', 'PRZYSZŁOŚĆ'];
+        const distractorComplexWordsAndPhrases = [...complexWordsAndPhrases];
 
 
         function populateVoiceList() {
@@ -408,6 +422,18 @@
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
                 targetLetterDisplay.classList.add('text-4xl', 'sm:text-5xl'); 
                 questionsOrder = shuffleArray(twoSyllableWordsNoPolish);
+            } else if (currentLevel === 11) {
+                levelTitleElement.textContent = 'Poziom 11 (Słowa 3-syl. PL, słuch)';
+                instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszane słowo (z polskimi znakami!):';
+                targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
+                targetLetterDisplay.classList.add('text-3xl', 'sm:text-4xl'); 
+                questionsOrder = shuffleArray(threeSyllableWordsWithPolish);
+            } else if (currentLevel === 12) {
+                levelTitleElement.textContent = 'Poziom 12 (Słowa złożone, słuch)';
+                instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszane słowo (trudne słowa!):';
+                targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
+                targetLetterDisplay.classList.add('text-2xl', 'sm:text-3xl'); 
+                questionsOrder = shuffleArray(complexWordsAndPhrases);
             }
             
             endGameModal.classList.add('hidden');
@@ -440,7 +466,7 @@
                 targetLetterDisplay.innerHTML = `<span class="${fontSizeClass}">${correctItem}</span>`; 
                 targetLetterDisplay.style.visibility = 'visible';
             } 
-            else if (currentLevel === 2 || currentLevel === 3 || currentLevel === 5 || currentLevel === 7 || currentLevel === 8 || currentLevel === 9 || currentLevel === 10) { 
+            else if (currentLevel === 2 || currentLevel === 3 || currentLevel === 5 || currentLevel === 7 || currentLevel === 8 || currentLevel === 9 || currentLevel === 10 || currentLevel === 11 || currentLevel === 12) { 
                 targetLetterDisplay.innerHTML = '<span class="text-7xl text-indigo-500">🔊</span>'; 
                  targetLetterDisplay.style.visibility = 'visible'; 
             }
@@ -457,6 +483,8 @@
                 if ((currentLevel === 4 || currentLevel === 5 || currentLevel === 8) && optionItem.length > 1) buttonFontSizeClass = 'text-3xl sm:text-4xl'; 
                 if ((currentLevel === 6 || currentLevel === 7 || currentLevel === 9) && optionItem.length > 2) buttonFontSizeClass = 'text-2xl sm:text-3xl'; 
                 if (currentLevel === 10 && optionItem.length > 3) buttonFontSizeClass = 'text-xl sm:text-2xl';
+                if (currentLevel === 11 && optionItem.length > 5) buttonFontSizeClass = 'text-lg sm:text-xl';
+                if (currentLevel === 12 && optionItem.length > 7) buttonFontSizeClass = 'text-base sm:text-lg';
 
                 button.className = `option-button bg-sky-500 hover:bg-sky-600 text-white font-bold py-6 sm:py-8 ${buttonFontSizeClass} rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-sky-300`;
                 button.addEventListener('click', () => handleOptionClick(optionItem, correctItem, button));
@@ -486,6 +514,10 @@
                 distractorSource = distractorThreeLetterSyllablesWithPolish;
             } else if (currentLevel === 10) {
                 distractorSource = distractorTwoSyllableWordsNoPolish;
+            } else if (currentLevel === 11) {
+                distractorSource = distractorThreeSyllableWordsWithPolish;
+            } else if (currentLevel === 12) {
+                distractorSource = distractorComplexWordsAndPhrases;
             }
 
 
@@ -578,6 +610,12 @@
             } else if (currentLevel === 9 && scorePercentage >= LEVEL_UP_THRESHOLD) {
                 canLevelUp = true; nextLevel = 10; levelUpModalTitle = "Awans do Poziomu 10!";
                 levelUpModalMessage = "Już prawie koniec! Odblokowałeś Poziom 10 (słowa 2-syl. bez PL, słuch)!"; nextLevelButtonText = "Start Poziom 10";
+            } else if (currentLevel === 10 && scorePercentage >= LEVEL_UP_THRESHOLD) {
+                canLevelUp = true; nextLevel = 11; levelUpModalTitle = "Awans do Poziomu 11!";
+                levelUpModalMessage = "Doskonale! Odblokowałeś Poziom 11 (słowa 3-syl. z PL, słuch)!"; nextLevelButtonText = "Start Poziom 11";
+            } else if (currentLevel === 11 && scorePercentage >= LEVEL_UP_THRESHOLD) {
+                canLevelUp = true; nextLevel = 12; levelUpModalTitle = "Awans do Poziomu 12!";
+                levelUpModalMessage = "Niesamowite! Odblokowałeś ostatni Poziom 12 (słowa złożone, słuch)!"; nextLevelButtonText = "Start Poziom 12";
             }
 
 
@@ -590,7 +628,7 @@
                 levelUpModal.classList.remove('hidden');
             } else { 
                 finalScoreValueDisplay.textContent = score;
-                if (currentLevel === 10) {
+                if (currentLevel === 12) {
                     endGameMessage.textContent = "Super Mistrz Czytania! Ukończyłeś wszystkie poziomy!";
                     localStorage.removeItem(STORAGE_KEY_LEVEL); // Wyczyść stan po ukończeniu ostatniego poziomu
                     localStorage.removeItem(STORAGE_KEY_SCORE);
@@ -659,6 +697,8 @@
         startLevel8MasterButton.addEventListener('click', () => startMasterLevel(8));
         startLevel9MasterButton.addEventListener('click', () => startMasterLevel(9));
         startLevel10MasterButton.addEventListener('click', () => startMasterLevel(10));
+        startLevel11MasterButton.addEventListener('click', () => startMasterLevel(11));
+        startLevel12MasterButton.addEventListener('click', () => startMasterLevel(12));
         
         closeMasterModeButton.addEventListener('click', () => {
             masterModeModal.classList.add('hidden');
