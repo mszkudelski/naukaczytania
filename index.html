@@ -8,12 +8,28 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        /* CSS Custom Properties for better theming */
+        :root {
+            --primary-color: #fbbf24;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --info-color: #3b82f6;
+            --danger-color: #ef4444;
+            --gray-color: #6b7280;
+            --text-primary: #374151;
+            --text-secondary: #4b5563;
+            --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --border-radius: 0.75rem;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
         /* Base system fonts for better performance and reliability */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--background-gradient);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -66,15 +82,15 @@
 
         /* Button variants */
         .btn-primary {
-            background-color: #fbbf24;
-            color: #374151;
+            background-color: var(--primary-color);
+            color: var(--text-primary);
         }
         .btn-primary:hover {
             background-color: #f59e0b;
         }
 
         .btn-secondary {
-            background-color: #8b5cf6;
+            background-color: var(--secondary-color);
             color: white;
         }
         .btn-secondary:hover {
@@ -82,7 +98,7 @@
         }
 
         .btn-success {
-            background-color: #10b981;
+            background-color: var(--success-color);
             color: white;
         }
         .btn-success:hover {
@@ -90,7 +106,7 @@
         }
 
         .btn-info {
-            background-color: #3b82f6;
+            background-color: var(--info-color);
             color: white;
         }
         .btn-info:hover {
@@ -98,7 +114,7 @@
         }
 
         .btn-gray {
-            background-color: #6b7280;
+            background-color: var(--gray-color);
             color: white;
         }
         .btn-gray:hover {
@@ -454,6 +470,11 @@
         .mb-6 { margin-bottom: 1.5rem; }
         .mb-8 { margin-bottom: 2rem; }
 
+        /* Ensure modals work properly */
+        .modal:not(.hidden) {
+            display: flex !important;
+        }
+
         /* Focus improvements for accessibility */
         *:focus {
             outline: 2px solid #3b82f6;
@@ -623,7 +644,7 @@
         const startLevel10MasterButton = document.getElementById('start-level-10-master-button'); 
         const startLevel11MasterButton = document.getElementById('start-level-11-master-button'); 
         const startLevel12MasterButton = document.getElementById('start-level-12-master-button'); 
-        const closeMasterModeButton = document.getElementById('close-master-mode-button');
+        const closeMasterModeButton = document.getElementById('close-master-mode-modal-button');
 
         // Modal kontynuacji
         const resumeGameModal = document.getElementById('resume-game-modal');
