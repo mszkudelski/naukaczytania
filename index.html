@@ -8,174 +8,577 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
+        /* Base system fonts for better performance and reliability */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
+
+        /* Enhanced responsive container */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* Improved button styles with better touch targets */
+        .btn {
+            font-weight: 700;
+            border: none;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            min-height: 44px; /* Minimum touch target */
+            min-width: 44px;
+            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+        }
+
+        /* Button variants */
+        .btn-primary {
+            background-color: #fbbf24;
+            color: #374151;
+        }
+        .btn-primary:hover {
+            background-color: #f59e0b;
+        }
+
+        .btn-secondary {
+            background-color: #8b5cf6;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #7c3aed;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .btn-info {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .btn-info:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-gray {
+            background-color: #6b7280;
+            color: white;
+        }
+        .btn-gray:hover {
+            background-color: #4b5563;
+        }
+
+        /* Game area improvements */
+        .game-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            text-align: center;
+            color: #374151;
+            width: 100%;
+            max-width: 32rem;
+        }
+
+        /* Modal improvements */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 50;
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            color: #374151;
+            width: 100%;
+            max-width: 28rem;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Grid system for options */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
         .option-button {
-            transition: transform 0.1s ease-in-out, background-color 0.2s ease;
+            background-color: #e5e7eb;
+            color: #374151;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
+
         .option-button:hover {
+            background-color: #d1d5db;
             transform: scale(1.05);
         }
+
         .option-button:active {
             transform: scale(0.98);
         }
+
         .correct-answer {
             animation: correctAnswerPulse 0.5s ease-in-out;
+            background-color: #10b981 !important;
+            color: white !important;
         }
+
         .incorrect-answer {
             animation: incorrectAnswerShake 0.5s ease-in-out;
+            background-color: #ef4444 !important;
+            color: white !important;
         }
+
         @keyframes correctAnswerPulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
+
         @keyframes incorrectAnswerShake {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-8px); }
             75% { transform: translateX(8px); }
         }
-        #target-letter { /* Używane też dla sylab i słów */
+
+        /* Target letter/syllable/word display */
+        #target-letter {
             cursor: pointer; 
-            user-select: none; 
+            user-select: none;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #4338ca;
+            height: 8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2rem;
+            word-break: break-all;
         }
+
         #target-letter:hover {
             opacity: 0.8;
         }
+
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            height: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .progress-bar {
+            background-color: #10b981;
+            height: 1.25rem;
+            border-radius: 9999px;
+            transition: width 0.5s ease-out;
+        }
+
+        /* Persistent button */
         #persistent-master-mode-button {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000; 
+            bottom: 1.25rem;
+            right: 1.25rem;
+            z-index: 1000;
         }
+
+        /* Typography improvements */
+        .title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: white;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .level-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .instruction {
+            font-size: 1.25rem;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+        }
+
+        .feedback {
+            font-size: 1.5rem;
+            font-weight: 600;
+            height: 2.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score {
+            font-size: 1.25rem;
+            color: #4b5563;
+        }
+
+        .score-value {
+            font-weight: 700;
+        }
+
+        /* Mobile-first responsive design */
+        @media (max-width: 640px) {
+            .container {
+                padding: 0.5rem;
+            }
+
+            .game-card {
+                padding: 1rem;
+                border-radius: 0.75rem;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+                margin: 0.5rem;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .level-title {
+                font-size: 2rem;
+            }
+
+            #target-letter {
+                font-size: 3rem;
+                height: 6rem;
+            }
+
+            .btn {
+                font-size: 0.875rem;
+                padding: 0.625rem 1.25rem;
+            }
+
+            .options-grid {
+                gap: 0.5rem;
+            }
+
+            .option-button {
+                padding: 0.75rem 0.5rem;
+                font-size: 1rem;
+                min-height: 50px;
+            }
+
+            #persistent-master-mode-button {
+                bottom: 1rem;
+                right: 1rem;
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.75rem;
+            }
+
+            .level-title {
+                font-size: 1.75rem;
+            }
+
+            #target-letter {
+                font-size: 2.5rem;
+                height: 5rem;
+            }
+
+            .options-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+
+            .option-button {
+                padding: 0.75rem;
+                font-size: 0.875rem;
+                min-height: 48px;
+            }
+
+            .modal-content {
+                padding: 1rem;
+            }
+        }
+
+        /* Landscape orientation adjustments */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .container {
+                justify-content: flex-start;
+                padding-top: 1rem;
+            }
+
+            .title {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .level-title {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            #target-letter {
+                height: 4rem;
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .game-card {
+                padding: 1rem;
+            }
+        }
+
+        /* Large screen improvements */
+        @media (min-width: 1024px) {
+            .game-card {
+                padding: 3rem;
+            }
+
+            .title {
+                font-size: 3rem;
+            }
+
+            .level-title {
+                font-size: 3rem;
+            }
+
+            #target-letter {
+                font-size: 5rem;
+                height: 10rem;
+            }
+
+            .option-button {
+                padding: 1.5rem;
+                font-size: 1.5rem;
+                min-height: 80px;
+            }
+
+            .options-grid {
+                gap: 1rem;
+            }
+        }
+
+        /* Utility classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+
+        /* Focus improvements for accessibility */
+        *:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .btn {
+                border: 2px solid currentColor;
+            }
+            
+            .option-button {
+                border: 2px solid #374151;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
     </style>
 </head>
-<body class="bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-600">
+<body>
 
-    <div id="game-container" class="flex flex-col items-center justify-center min-h-screen p-4 text-white">
-
-        <div id="start-screen" class="text-center"> <!-- Początkowo ukryty, jeśli jest zapisana gra -->
-            <h1 class="text-5xl sm:text-6xl font-black mb-6 drop-shadow-lg">Nauka Czytania!</h1>
-            <p class="text-xl sm:text-2xl mb-8">Zaczynamy przygodę z literkami, sylabami i słowami!</p>
-            <button id="start-button" class="bg-yellow-400 hover:bg-yellow-500 text-gray-800 font-bold py-3 px-8 sm:py-4 sm:px-10 rounded-full text-2xl sm:text-3xl shadow-xl transform hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-yellow-300 mb-4">
+    <div class="container">
+        
+        <div id="start-screen" class="text-center">
+            <h1 class="title">Nauka Czytania!</h1>
+            <p class="subtitle">Zaczynamy przygodę z literkami, sylabami i słowami!</p>
+            <button id="start-button" class="btn btn-primary" style="font-size: 1.5rem; padding: 1rem 2rem;">
                 Start! (Poziom 1)
             </button>
-            </div>
+        </div>
 
-        <div id="game-content" class="hidden w-full max-w-2xl">
+        <div id="game-content" class="hidden">
             <div id="game-header" class="text-center mb-6">
-                 <h2 id="level-title" class="text-4xl sm:text-5xl font-black text-white drop-shadow-md">Poziom 1: Jaka to litera?</h2>
+                 <h2 id="level-title" class="level-title">Poziom 1: Jaka to litera?</h2>
             </div>
 
-            <div id="game-area" class="bg-white p-6 sm:p-8 rounded-xl shadow-2xl text-center text-gray-800">
-                <div class="w-full bg-gray-200 rounded-full h-5 mb-6 shadow-inner">
-                    <div id="progress-bar" class="bg-green-500 h-5 rounded-full transition-all duration-500 ease-out" style="width: 0%;"></div>
+            <div id="game-area" class="game-card">
+                <div class="progress-container">
+                    <div id="progress-bar" class="progress-bar" style="width: 0%;"></div>
                 </div>
 
-                <div id="instruction" class="text-xl sm:text-2xl text-gray-700 mb-2">Posłuchaj i wybierz pokazaną literę:</div>
-                <div id="target-letter" class="font-black text-indigo-600 mb-8 break-all h-32 flex items-center justify-center" title="Kliknij, aby usłyszeć">A</div>
+                <div id="instruction" class="instruction">Posłuchaj i wybierz pokazaną literę:</div>
+                <div id="target-letter" title="Kliknij, aby usłyszeć">A</div>
 
-                <div id="options-container" class="grid grid-cols-3 gap-3 sm:gap-4 mb-8">
+                <div id="options-container" class="options-grid">
                 </div>
 
-                <div id="feedback" class="text-2xl sm:text-3xl font-semibold h-10 mb-4"></div>
+                <div id="feedback" class="feedback"></div>
 
-                <div id="score-container" class="text-xl sm:text-2xl text-gray-700">
-                    Punkty: <span id="score" class="font-bold">0</span>
+                <div id="score-container" class="score">
+                    Punkty: <span id="score" class="score-value">0</span>
                 </div>
             </div>
         </div>
 
-        <button id="persistent-master-mode-button" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 sm:py-3 sm:px-8 rounded-full text-lg sm:text-xl shadow-lg transform hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-purple-400">
+        <button id="persistent-master-mode-button" class="btn btn-secondary">
             Tryb Mistrza
         </button>
-
-        <div id="end-game-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-            <div class="bg-white p-8 sm:p-10 rounded-xl shadow-2xl text-center text-gray-800 w-full max-w-md">
-                <div id="end-game-message" class="text-3xl sm:text-4xl font-bold text-green-600 mb-6">Gratulacje!</div>
-                <div id="final-score" class="text-2xl sm:text-3xl text-gray-800 mb-8">Twój wynik: <span id="final-score-value" class="font-bold">0</span></div>
-                <button id="restart-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-xl sm:text-2xl focus:outline-none focus:ring-4 focus:ring-blue-300">
+        <div id="end-game-modal" class="modal hidden">
+            <div class="modal-content">
+                <div id="end-game-message" class="title" style="color: #10b981; margin-bottom: 1.5rem;">Gratulacje!</div>
+                <div id="final-score" class="subtitle" style="color: #374151; margin-bottom: 2rem;">Twój wynik: <span id="final-score-value" class="score-value">0</span></div>
+                <button id="restart-button" class="btn btn-info" style="font-size: 1.25rem;">
                     Zagraj Ponownie (Poziom 1)
                 </button>
             </div>
         </div>
 
-        <div id="level-up-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
-            <div class="bg-white p-8 sm:p-10 rounded-xl shadow-2xl text-center text-gray-800 w-full max-w-md">
-                <div id="level-up-title" class="text-3xl sm:text-4xl font-bold text-blue-600 mb-4">Poziom Wyżej!</div>
-                <img src="https://placehold.co/100x100/34D399/FFFFFF?text=🏆" alt="Trofeum" class="mx-auto mb-4 rounded-full" onerror="this.src='https://placehold.co/100x100/CCCCCC/FFFFFF?text=Error'; this.alt='Błąd ładowania obrazka trofeum'">
-                <p id="level-up-message" class="text-xl mb-4">Świetna robota! Odblokowałeś Poziom 2!</p>
-                <div class="text-2xl sm:text-3xl text-gray-800 mb-8">Wynik w poprzednim poziomie: <span id="previous-level-final-score-value" class="font-bold">0</span></div>
-                <button id="start-next-level-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-xl sm:text-2xl focus:outline-none focus:ring-4 focus:ring-green-300 mr-2 mb-2 sm:mb-0">
-                    Start Poziom 2
-                </button>
-                <button id="restart-game-from-level-up-button" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg text-xl sm:text-2xl focus:outline-none focus:ring-4 focus:ring-gray-300">
-                    Zagraj od początku (Poziom 1)
-                </button>
-            </div>
-        </div>
-
-        <div id="master-mode-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-[1050]"> 
-            <div class="bg-white p-8 sm:p-10 rounded-xl shadow-2xl text-center text-gray-800 w-full max-w-lg">
-                <div class="text-3xl sm:text-4xl font-bold text-purple-700 mb-6">Tryb Mistrza</div>
-                <p class="text-xl mb-6">Wybierz poziom, od którego chcesz zacząć:</p>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button id="start-level-1-master-button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-blue-300 w-full">
-                        1 (Litery)
+        <div id="level-up-modal" class="modal hidden">
+            <div class="modal-content">
+                <div id="level-up-title" class="title" style="color: #3b82f6; margin-bottom: 1rem;">Poziom Wyżej!</div>
+                <div style="width: 100px; height: 100px; background-color: #10b981; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🏆</div>
+                <p id="level-up-message" class="subtitle" style="margin-bottom: 1rem;">Świetna robota! Odblokowałeś Poziom 2!</p>
+                <div class="subtitle" style="color: #374151; margin-bottom: 2rem;">Wynik w poprzednim poziomie: <span id="previous-level-final-score-value" class="score-value">0</span></div>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+                    <button id="start-next-level-button" class="btn btn-success" style="font-size: 1.25rem;">
+                        Start Poziom 2
                     </button>
-                    <button id="start-level-2-master-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-green-300 w-full">
-                        2 (Litery, słuch)
-                    </button>
-                    <button id="start-level-3-master-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-red-300 w-full">
-                        3 (Litery PL, słuch)
-                    </button>
-                    <button id="start-level-4-master-button" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-yellow-300 w-full">
-                        4 (Sylaby 2-lit.)
-                    </button>
-                    <button id="start-level-5-master-button" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-pink-300 w-full">
-                        5 (Sylaby 2-lit., słuch)
-                    </button>
-                    <button id="start-level-6-master-button" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-indigo-300 w-full">
-                        6 (Sylaby 3-lit.)
-                    </button>
-                    <button id="start-level-7-master-button" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-teal-300 w-full">
-                        7 (Sylaby 3-lit., słuch)
-                    </button>
-                    <button id="start-level-8-master-button" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-orange-300 w-full">
-                        8 (Sylaby 2-lit. PL, słuch)
-                    </button>
-                    <button id="start-level-9-master-button" class="bg-lime-500 hover:bg-lime-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-lime-300 w-full">
-                        9 (Sylaby 3-lit. PL, słuch)
-                    </button>
-                    <button id="start-level-10-master-button" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-cyan-300 w-full">
-                        10 (Słowa 2-syl., słuch)
-                    </button>
-                    <button id="start-level-11-master-button" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-emerald-300 w-full">
-                        11 (Słowa 3-syl. PL, słuch)
-                    </button>
-                    <button id="start-level-12-master-button" class="bg-violet-500 hover:bg-violet-600 text-white font-bold py-3 px-6 rounded-lg text-lg focus:outline-none focus:ring-4 focus:ring-violet-300 w-full">
-                        12 (Słowa złożone, słuch)
+                    <button id="restart-game-from-level-up-button" class="btn btn-gray" style="font-size: 1.25rem;">
+                        Zagraj od początku (Poziom 1)
                     </button>
                 </div>
-                 <button id="close-master-mode-button" class="mt-6 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-gray-400">
-                    Anuluj
-                </button>
+            </div>
+        <div id="master-mode-modal" class="modal hidden" style="z-index: 1050;">
+            <div class="modal-content" style="max-width: 32rem;">
+                <div class="title" style="color: #8b5cf6; margin-bottom: 1.5rem;">Tryb Mistrza</div>
+                <p class="subtitle" style="margin-bottom: 1.5rem;">Wybierz poziom, od którego chcesz zacząć:</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem;">
+                    <button id="start-level-1-master-button" class="btn btn-info">1 (Litery)</button>
+                    <button id="start-level-2-master-button" class="btn btn-success">2 (Litery, słuch)</button>
+                    <button id="start-level-3-master-button" class="btn" style="background-color: #ef4444; color: white;">3 (Litery PL, słuch)</button>
+                    <button id="start-level-4-master-button" class="btn" style="background-color: #f59e0b; color: white;">4 (Sylaby 2-lit.)</button>
+                    <button id="start-level-5-master-button" class="btn" style="background-color: #ec4899; color: white;">5 (Sylaby 2-lit., słuch)</button>
+                    <button id="start-level-6-master-button" class="btn" style="background-color: #6366f1; color: white;">6 (Sylaby 3-lit.)</button>
+                    <button id="start-level-7-master-button" class="btn" style="background-color: #14b8a6; color: white;">7 (Sylaby 3-lit., słuch)</button>
+                    <button id="start-level-8-master-button" class="btn" style="background-color: #f97316; color: white;">8 (Sylaby 2-lit. PL, słuch)</button>
+                    <button id="start-level-9-master-button" class="btn" style="background-color: #84cc16; color: white;">9 (Sylaby 3-lit. PL, słuch)</button>
+                    <button id="start-level-10-master-button" class="btn" style="background-color: #06b6d4; color: white;">10 (Słowa 2-syl. bez PL, słuch)</button>
+                    <button id="start-level-11-master-button" class="btn" style="background-color: #8b5cf6; color: white;">11 (Słowa 2-syl. PL, słuch)</button>
+                    <button id="start-level-12-master-button" class="btn" style="background-color: #10b981; color: white;">12 (Słowa 3-syl. PL, słuch)</button>
+                </div>
+                <button id="close-master-mode-modal-button" class="btn btn-gray" style="margin-top: 1.5rem;">Zamknij</button>
             </div>
         </div>
-
         <!-- Modal Kontynuacji Gry -->
-        <div id="resume-game-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-[1060]">
-            <div class="bg-white p-8 sm:p-10 rounded-xl shadow-2xl text-center text-gray-800 w-full max-w-md">
-                <div class="text-2xl sm:text-3xl font-bold text-gray-800 mb-4">Witaj z powrotem!</div>
-                <p id="resume-game-message" class="text-xl mb-6">Znaleziono zapisaną grę. Chcesz kontynuować?</p>
-                <div class="text-lg mb-4">Poziom: <span id="resume-level" class="font-bold"></span>, Punkty: <span id="resume-score" class="font-bold"></span></div>
-                <button id="resume-yes-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-xl sm:text-2xl focus:outline-none focus:ring-4 focus:ring-green-300 mr-2">
-                    Tak, kontynuuj
-                </button>
-                <button id="resume-no-button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg text-xl sm:text-2xl focus:outline-none focus:ring-4 focus:ring-red-300">
-                    Nie, zacznij od nowa
-                </button>
+        <div id="resume-game-modal" class="modal hidden" style="z-index: 1060;">
+            <div class="modal-content">
+                <div class="title" style="color: #374151; margin-bottom: 1rem;">Witaj z powrotem!</div>
+                <p id="resume-game-message" class="subtitle" style="margin-bottom: 1.5rem;">Znaleziono zapisaną grę. Chcesz kontynuować?</p>
+                <div class="subtitle" style="margin-bottom: 1rem;">Poziom: <span id="resume-level" class="score-value"></span>, Punkty: <span id="resume-score" class="score-value"></span></div>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+                    <button id="resume-yes-button" class="btn btn-success" style="font-size: 1.25rem;">
+                        Tak, kontynuuj
+                    </button>
+                    <button id="resume-no-button" class="btn" style="background-color: #ef4444; color: white; font-size: 1.25rem;">
+                        Nie, zacznij od nowa
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -357,82 +760,83 @@
             localStorage.setItem(STORAGE_KEY_LEVEL, currentLevel);
             localStorage.setItem(STORAGE_KEY_SCORE, score); // Zapisz początkowy wynik (0 lub wznowiony)
 
-            targetLetterDisplay.classList.remove('text-8xl', 'sm:text-9xl', 'text-6xl', 'sm:text-7xl', 'text-5xl', 'sm:text-6xl', 'text-4xl', 'sm:text-5xl'); 
+            // Remove any existing font size classes - use direct style instead
+            targetLetterDisplay.style.fontSize = '';
 
             if (currentLevel === 1) {
                 levelTitleElement.textContent = 'Poziom 1 (Litery bez PL)';
                 instructionTextElement.textContent = 'Posłuchaj i wybierz pokazaną literę:';
                 targetLetterDisplay.style.visibility = 'visible';
                 targetLetterDisplay.setAttribute('title', 'Kliknij, aby usłyszeć literę');
-                targetLetterDisplay.classList.add('text-8xl', 'sm:text-9xl');
+                targetLetterDisplay.style.fontSize = '6rem';
                 questionsOrder = shuffleArray(lettersForLevel1And2);
             } else if (currentLevel === 2) {
                 levelTitleElement.textContent = 'Poziom 2 (Litery bez PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną literę:';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.classList.add('text-8xl', 'sm:text-9xl'); 
+                targetLetterDisplay.style.fontSize = '6rem';
                 questionsOrder = shuffleArray(lettersForLevel1And2);
             } else if (currentLevel === 3) {
                 levelTitleElement.textContent = 'Poziom 3 (Litery z PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną literę (z polskimi znakami!):';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.classList.add('text-8xl', 'sm:text-9xl'); 
+                targetLetterDisplay.style.fontSize = '6rem';
                 questionsOrder = shuffleArray(lettersForLevel3);
             } else if (currentLevel === 4) {
                 levelTitleElement.textContent = 'Poziom 4 (Sylaby 2-lit. bez PL)';
                 instructionTextElement.textContent = 'Posłuchaj i wybierz pokazaną sylabę:';
                 targetLetterDisplay.style.visibility = 'visible';
                 targetLetterDisplay.setAttribute('title', 'Kliknij, aby usłyszeć sylabę');
-                targetLetterDisplay.classList.add('text-6xl', 'sm:text-7xl'); 
+                targetLetterDisplay.style.fontSize = '4.5rem';
                 questionsOrder = shuffleArray(twoLetterSyllablesNoPolish);
             } else if (currentLevel === 5) {
                 levelTitleElement.textContent = 'Poziom 5 (Sylaby 2-lit. bez PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę:';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.classList.add('text-6xl', 'sm:text-7xl'); 
+                targetLetterDisplay.style.fontSize = '4.5rem';
                 questionsOrder = shuffleArray(twoLetterSyllablesNoPolish);
             } else if (currentLevel === 6) {
                 levelTitleElement.textContent = 'Poziom 6 (Sylaby 3-lit. bez PL)';
                 instructionTextElement.textContent = 'Posłuchaj i wybierz pokazaną sylabę:';
                 targetLetterDisplay.style.visibility = 'visible';
                 targetLetterDisplay.setAttribute('title', 'Kliknij, aby usłyszeć sylabę');
-                targetLetterDisplay.classList.add('text-5xl', 'sm:text-6xl'); 
+                targetLetterDisplay.style.fontSize = '4rem'; 
                 questionsOrder = shuffleArray(threeLetterSyllablesNoPolish);
             } else if (currentLevel === 7) {
                 levelTitleElement.textContent = 'Poziom 7 (Sylaby 3-lit. bez PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę:';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.classList.add('text-5xl', 'sm:text-6xl'); 
+                targetLetterDisplay.style.fontSize = '4rem';
                 questionsOrder = shuffleArray(threeLetterSyllablesNoPolish);
             } else if (currentLevel === 8) {
                 levelTitleElement.textContent = 'Poziom 8 (Sylaby 2-lit. PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę (z polskimi znakami!):';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.classList.add('text-6xl', 'sm:text-7xl'); 
+                targetLetterDisplay.style.fontSize = '4.5rem';
                 questionsOrder = shuffleArray(twoLetterSyllablesWithPolish);
             } else if (currentLevel === 9) {
                 levelTitleElement.textContent = 'Poziom 9 (Sylaby 3-lit. PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę (z polskimi znakami!):';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.classList.add('text-5xl', 'sm:text-6xl'); 
+                targetLetterDisplay.style.fontSize = '4rem';
                 questionsOrder = shuffleArray(threeLetterSyllablesWithPolish);
             } else if (currentLevel === 10) {
                 levelTitleElement.textContent = 'Poziom 10 (Słowa 2-syl. bez PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszane słowo:';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.classList.add('text-4xl', 'sm:text-5xl'); 
+                targetLetterDisplay.style.fontSize = '3rem';
                 questionsOrder = shuffleArray(twoSyllableWordsNoPolish);
             } else if (currentLevel === 11) {
                 levelTitleElement.textContent = 'Poziom 11 (Słowa 3-syl. PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszane słowo (z polskimi znakami!):';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.classList.add('text-3xl', 'sm:text-4xl'); 
+                targetLetterDisplay.style.fontSize = '2.5rem';
                 questionsOrder = shuffleArray(threeSyllableWordsWithPolish);
             } else if (currentLevel === 12) {
                 levelTitleElement.textContent = 'Poziom 12 (Słowa złożone, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszane słowo (trudne słowa!):';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.classList.add('text-2xl', 'sm:text-3xl'); 
+                targetLetterDisplay.style.fontSize = '2rem'; 
                 questionsOrder = shuffleArray(complexWordsAndPhrases);
             }
             
@@ -455,20 +859,17 @@
             }
 
             feedbackDisplay.textContent = ''; 
-            feedbackDisplay.className = 'text-2xl sm:text-3xl font-semibold h-10 mb-4'; 
-
+            // Reset feedback styling to default
+            
             const correctItem = questionsOrder[currentQuestionIndex]; 
             
             if (currentLevel === 1 || currentLevel === 4 || currentLevel === 6) { 
-                let fontSizeClass = 'text-8xl sm:text-9xl'; 
-                if (currentLevel === 4) fontSizeClass = 'text-6xl sm:text-7xl'; 
-                if (currentLevel === 6) fontSizeClass = 'text-5xl sm:text-6xl'; 
-                targetLetterDisplay.innerHTML = `<span class="${fontSizeClass}">${correctItem}</span>`; 
+                targetLetterDisplay.innerHTML = correctItem; 
                 targetLetterDisplay.style.visibility = 'visible';
             } 
             else if (currentLevel === 2 || currentLevel === 3 || currentLevel === 5 || currentLevel === 7 || currentLevel === 8 || currentLevel === 9 || currentLevel === 10 || currentLevel === 11 || currentLevel === 12) { 
-                targetLetterDisplay.innerHTML = '<span class="text-7xl text-indigo-500">🔊</span>'; 
-                 targetLetterDisplay.style.visibility = 'visible'; 
+                targetLetterDisplay.innerHTML = '<span style="font-size: 4rem; color: #4338ca;">🔊</span>'; 
+                targetLetterDisplay.style.visibility = 'visible'; 
             }
             
             setTimeout(() => speakText(correctItem), 150); 
@@ -479,14 +880,17 @@
             options.forEach(optionItem => {
                 const button = document.createElement('button');
                 button.textContent = optionItem; 
-                let buttonFontSizeClass = 'text-4xl sm:text-5xl'; 
-                if ((currentLevel === 4 || currentLevel === 5 || currentLevel === 8) && optionItem.length > 1) buttonFontSizeClass = 'text-3xl sm:text-4xl'; 
-                if ((currentLevel === 6 || currentLevel === 7 || currentLevel === 9) && optionItem.length > 2) buttonFontSizeClass = 'text-2xl sm:text-3xl'; 
-                if (currentLevel === 10 && optionItem.length > 3) buttonFontSizeClass = 'text-xl sm:text-2xl';
-                if (currentLevel === 11 && optionItem.length > 5) buttonFontSizeClass = 'text-lg sm:text-xl';
-                if (currentLevel === 12 && optionItem.length > 7) buttonFontSizeClass = 'text-base sm:text-lg';
+                
+                // Set dynamic font sizes based on content length and level
+                let fontSize = '1.25rem';
+                if ((currentLevel === 4 || currentLevel === 5 || currentLevel === 8) && optionItem.length > 1) fontSize = '1.125rem'; 
+                if ((currentLevel === 6 || currentLevel === 7 || currentLevel === 9) && optionItem.length > 2) fontSize = '1rem'; 
+                if (currentLevel === 10 && optionItem.length > 3) fontSize = '0.875rem';
+                if (currentLevel === 11 && optionItem.length > 5) fontSize = '0.75rem';
+                if (currentLevel === 12 && optionItem.length > 7) fontSize = '0.7rem';
 
-                button.className = `option-button bg-sky-500 hover:bg-sky-600 text-white font-bold py-6 sm:py-8 ${buttonFontSizeClass} rounded-lg shadow-md focus:outline-none focus:ring-4 focus:ring-sky-300`;
+                button.className = 'option-button';
+                button.style.fontSize = fontSize;
                 button.addEventListener('click', () => handleOptionClick(optionItem, correctItem, button));
                 optionsContainer.appendChild(button);
             });
@@ -544,21 +948,19 @@
 
             if (selectedItem === correctItem) {
                 feedbackDisplay.textContent = 'Świetnie!';
-                feedbackDisplay.className = 'text-2xl sm:text-3xl font-semibold h-10 mb-4 text-green-500 correct-answer';
-                buttonElement.classList.remove('bg-sky-500', 'hover:bg-sky-600');
-                buttonElement.classList.add('bg-green-500');
+                feedbackDisplay.style.color = '#10b981';
+                feedbackDisplay.className = 'feedback correct-answer';
                 score++;
                 scoreDisplay.textContent = score;
                 playCorrectSound();
             } else {
                 feedbackDisplay.textContent = 'Spróbuj jeszcze raz!';
-                feedbackDisplay.className = 'text-2xl sm:text-3xl font-semibold h-10 mb-4 text-red-500 incorrect-answer';
-                buttonElement.classList.remove('bg-sky-500', 'hover:bg-sky-600');
-                buttonElement.classList.add('bg-red-500');
+                feedbackDisplay.style.color = '#ef4444';
+                feedbackDisplay.className = 'feedback incorrect-answer';
                 playIncorrectSound();
                 buttons.forEach(btn => {
                     if (btn.textContent === correctItem) { 
-                        btn.classList.remove('bg-sky-500', 'hover:bg-sky-600');
+                        btn.classList.add('correct-answer');
                         btn.classList.add('bg-green-400', 'opacity-70'); 
                     }
                 });
