@@ -45,9 +45,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 100vh;
             box-sizing: border-box;
+            padding-top: 2rem;
         }
 
         /* Improved button styles with better touch targets */
@@ -321,9 +322,9 @@
         /* Mobile-first responsive design */
         @media (max-width: 640px) {
             .container {
-                padding: 0.5rem;
+                padding: 1rem 0.5rem;
                 justify-content: flex-start;
-                padding-top: 2rem;
+                padding-top: 3rem;
                 padding-bottom: 6rem; /* Extra space for persistent button */
             }
 
@@ -494,6 +495,27 @@
         .mb-6 { margin-bottom: 1.5rem; }
         .mb-8 { margin-bottom: 2rem; }
 
+        /* Master mode grid improvements */
+        .master-mode-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 640px) {
+            .master-mode-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .master-mode-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+        }
+
         /* Ensure modals work properly */
         .modal:not(.hidden) {
             display: flex !important;
@@ -589,11 +611,13 @@
                     </button>
                 </div>
             </div>
+        </div>
+
         <div id="master-mode-modal" class="modal hidden" style="z-index: 1050;">
             <div class="modal-content" style="max-width: 32rem;">
                 <div class="title" style="color: #8b5cf6; margin-bottom: 1.5rem;">Tryb Mistrza</div>
                 <p class="subtitle" style="margin-bottom: 1.5rem;">Wybierz poziom, od którego chcesz zacząć:</p>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem;">
+                <div class="master-mode-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem;">
                     <button id="start-level-1-master-button" class="btn btn-info">1 (Litery)</button>
                     <button id="start-level-2-master-button" class="btn btn-success">2 (Litery, słuch)</button>
                     <button id="start-level-3-master-button" class="btn" style="background-color: #ef4444; color: white;">3 (Litery PL, słuch)</button>
