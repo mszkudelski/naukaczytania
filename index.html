@@ -1027,6 +1027,8 @@
                 feedbackDisplay.style.color = '#ef4444';
                 feedbackDisplay.className = 'feedback incorrect-answer';
                 playIncorrectSound();
+                // Read the selected wrong answer aloud
+                setTimeout(() => speakText(selectedItem), 200);
                 buttons.forEach(btn => {
                     if (btn.textContent === correctItem) { 
                         btn.classList.add('correct-answer');
