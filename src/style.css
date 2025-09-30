@@ -1,0 +1,538 @@
+/* CSS Custom Properties for better theming */
+:root {
+    --primary-color: #fbbf24;
+    --secondary-color: #8b5cf6;
+    --success-color: #10b981;
+    --info-color: #3b82f6;
+    --danger-color: #ef4444;
+    --gray-color: #6b7280;
+    --text-primary: #374151;
+    --text-secondary: #4b5563;
+    --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --border-radius: 0.75rem;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Base system fonts for better performance and reliability */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--background-gradient);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Enhanced responsive container */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    box-sizing: border-box;
+    padding-top: 2rem;
+}
+
+/* Improved button styles with better touch targets */
+.btn {
+    font-weight: 700;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    min-height: 44px; /* Minimum touch target */
+    min-width: 44px;
+    font-size: 1rem;
+    padding: 0.75rem 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}
+
+/* Button variants */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--text-primary);
+}
+.btn-primary:hover {
+    background-color: #f59e0b;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+.btn-secondary:hover {
+    background-color: #7c3aed;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: white;
+}
+.btn-success:hover {
+    background-color: #059669;
+}
+
+.btn-info {
+    background-color: var(--info-color);
+    color: white;
+}
+.btn-info:hover {
+    background-color: #2563eb;
+}
+
+.btn-gray {
+    background-color: var(--gray-color);
+    color: white;
+}
+.btn-gray:hover {
+    background-color: #4b5563;
+}
+
+/* Game area improvements */
+.game-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    text-align: center;
+    color: #374151;
+    width: 100%;
+    max-width: 32rem;
+    margin-bottom: 5rem; /* Add bottom margin to prevent overlap with persistent button */
+}
+
+/* Modal improvements */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 50;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    color: #374151;
+    width: 100%;
+    max-width: 28rem;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Grid system for options */
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.option-button {
+    background-color: #e5e7eb;
+    color: #374151;
+    border: none;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.option-button:hover {
+    background-color: #d1d5db;
+    transform: scale(1.05);
+}
+
+.option-button:active {
+    transform: scale(0.98);
+}
+
+.correct-answer {
+    animation: correctAnswerPulse 0.5s ease-in-out;
+    background-color: #10b981 !important;
+    color: white !important;
+}
+
+.incorrect-answer {
+    animation: incorrectAnswerShake 0.5s ease-in-out;
+    background-color: #ef4444 !important;
+    color: white !important;
+}
+
+@keyframes correctAnswerPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes incorrectAnswerShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+/* Target letter/syllable/word display */
+#target-letter {
+    cursor: pointer; 
+    user-select: none;
+    font-size: 4rem;
+    font-weight: 900;
+    color: #4338ca;
+    height: 8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    word-break: break-all;
+}
+
+#target-letter:hover {
+    opacity: 0.8;
+}
+
+/* Progress bar */
+.progress-container {
+    width: 100%;
+    background-color: #e5e7eb;
+    border-radius: 9999px;
+    height: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.progress-bar {
+    background-color: #10b981;
+    height: 1.25rem;
+    border-radius: 9999px;
+    transition: width 0.5s ease-out;
+}
+
+/* Persistent button */
+#persistent-master-mode-button {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    z-index: 1000;
+}
+
+/* Typography improvements */
+.title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    color: white;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.level-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.instruction {
+    font-size: 1.25rem;
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+}
+
+.feedback {
+    font-size: 1.5rem;
+    font-weight: 600;
+    height: 2.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.score {
+    font-size: 1.25rem;
+    color: #4b5563;
+}
+
+.score-value {
+    font-weight: 700;
+}
+
+/* Mobile-first responsive design */
+@media (max-width: 640px) {
+    .container {
+        padding: 1rem 0.5rem;
+        justify-content: flex-start;
+        padding-top: 3rem;
+        padding-bottom: 6rem; /* Extra space for persistent button */
+    }
+
+    .game-card {
+        padding: 1rem;
+        border-radius: 0.75rem;
+        margin-bottom: 4rem;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        margin: 0.5rem;
+    }
+
+    .title {
+        font-size: 2rem;
+    }
+
+    .level-title {
+        font-size: 2rem;
+    }
+
+    #target-letter {
+        font-size: 3rem;
+        height: 6rem;
+    }
+
+    .btn {
+        font-size: 0.875rem;
+        padding: 0.625rem 1.25rem;
+    }
+
+    .options-grid {
+        gap: 0.5rem;
+    }
+
+    .option-button {
+        padding: 0.75rem 0.5rem;
+        font-size: 1rem;
+        min-height: 50px;
+    }
+
+    #persistent-master-mode-button {
+        bottom: 1rem;
+        right: 1rem;
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+        position: fixed;
+        z-index: 1000;
+    }
+
+    /* Ensure game card has enough space from button */
+    .game-card {
+        margin-bottom: 4rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .level-title {
+        font-size: 1.75rem;
+    }
+
+    #target-letter {
+        font-size: 2.5rem;
+        height: 5rem;
+    }
+
+    .options-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .option-button {
+        padding: 0.75rem;
+        font-size: 0.875rem;
+        min-height: 48px;
+    }
+
+    .modal-content {
+        padding: 1rem;
+    }
+
+    .container {
+        padding-bottom: 5rem; /* More space for button on small screens */
+    }
+
+    #persistent-master-mode-button {
+        bottom: 0.75rem;
+        right: 0.75rem;
+        font-size: 0.75rem;
+        padding: 0.375rem 0.75rem;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-height: 600px) and (orientation: landscape) {
+    .container {
+        justify-content: flex-start;
+        padding-top: 1rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .level-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    #target-letter {
+        height: 4rem;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .game-card {
+        padding: 1rem;
+    }
+}
+
+/* Large screen improvements */
+@media (min-width: 1024px) {
+    .game-card {
+        padding: 3rem;
+    }
+
+    .title {
+        font-size: 3rem;
+    }
+
+    .level-title {
+        font-size: 3rem;
+    }
+
+    #target-letter {
+        font-size: 5rem;
+        height: 10rem;
+    }
+
+    .option-button {
+        padding: 1.5rem;
+        font-size: 1.5rem;
+        min-height: 80px;
+    }
+
+    .options-grid {
+        gap: 1rem;
+    }
+}
+
+/* Utility classes */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+
+/* Master mode grid improvements */
+.master-mode-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+    .master-mode-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .master-mode-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+}
+
+/* Ensure modals work properly */
+.modal:not(.hidden) {
+    display: flex !important;
+}
+
+/* Focus improvements for accessibility */
+*:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid currentColor;
+    }
+    
+    .option-button {
+        border: 2px solid #374151;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
