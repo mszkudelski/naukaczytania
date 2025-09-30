@@ -1,18 +1,11 @@
 import { useGame } from '../contexts/GameContext';
-import { useAudio } from '../contexts/AudioContext';
-import { useEffect } from 'preact/hooks';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 
 const FeedbackDisplay = () => {
   const { lastAnswerCorrect } = useGame();
-  const { playCorrectSound, playIncorrectSound } = useAudio();
-
-  useEffect(() => {
-    if (lastAnswerCorrect === true) {
-      playCorrectSound();
-    } else if (lastAnswerCorrect === false) {
-      playIncorrectSound();
-    }
-  }, [lastAnswerCorrect, playCorrectSound, playIncorrectSound]);
+  
+  // Handle sound effects in dedicated hook
+  useSoundEffects(lastAnswerCorrect);
 
   if (lastAnswerCorrect === null) {
     return <div className="h-12 mb-4" />; // Placeholder to maintain layout
