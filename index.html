@@ -453,8 +453,14 @@
 
         /* Large screen improvements */
         @media (min-width: 1024px) {
+            .container {
+                max-width: 1400px;
+                padding: 2rem;
+            }
+
             .game-card {
-                padding: 3rem;
+                padding: 4rem;
+                max-width: 48rem;
             }
 
             .title {
@@ -466,18 +472,35 @@
             }
 
             #target-letter {
-                font-size: 5rem;
-                height: 10rem;
+                font-size: 4rem;
+                height: 8rem;
+                margin-bottom: 3rem;
             }
 
             .option-button {
                 padding: 1.5rem;
-                font-size: 1.5rem;
+                font-size: 1.25rem;
                 min-height: 80px;
+                font-weight: 700;
             }
 
             .options-grid {
-                gap: 1rem;
+                gap: 1.5rem;
+                margin-bottom: 3rem;
+            }
+
+            .instruction {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .feedback {
+                font-size: 1.75rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .score {
+                font-size: 1.5rem;
             }
         }
 
@@ -829,7 +852,7 @@
             localStorage.setItem(STORAGE_KEY_LEVEL, currentLevel);
             localStorage.setItem(STORAGE_KEY_SCORE, score); // Zapisz początkowy wynik (0 lub wznowiony)
 
-            // Remove any existing font size classes - use direct style instead
+            // Remove any existing font size classes - use CSS defaults
             targetLetterDisplay.style.fontSize = '';
 
             if (currentLevel === 1) {
@@ -837,75 +860,63 @@
                 instructionTextElement.textContent = 'Posłuchaj i wybierz pokazaną literę:';
                 targetLetterDisplay.style.visibility = 'visible';
                 targetLetterDisplay.setAttribute('title', 'Kliknij, aby usłyszeć literę');
-                targetLetterDisplay.style.fontSize = '6rem';
                 questionsOrder = shuffleArray(lettersForLevel1And2);
             } else if (currentLevel === 2) {
                 levelTitleElement.textContent = 'Poziom 2 (Litery bez PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną literę:';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.style.fontSize = '6rem';
                 questionsOrder = shuffleArray(lettersForLevel1And2);
             } else if (currentLevel === 3) {
                 levelTitleElement.textContent = 'Poziom 3 (Litery z PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną literę (z polskimi znakami!):';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.style.fontSize = '6rem';
                 questionsOrder = shuffleArray(lettersForLevel3);
             } else if (currentLevel === 4) {
                 levelTitleElement.textContent = 'Poziom 4 (Sylaby 2-lit. bez PL)';
                 instructionTextElement.textContent = 'Posłuchaj i wybierz pokazaną sylabę:';
                 targetLetterDisplay.style.visibility = 'visible';
                 targetLetterDisplay.setAttribute('title', 'Kliknij, aby usłyszeć sylabę');
-                targetLetterDisplay.style.fontSize = '4.5rem';
                 questionsOrder = shuffleArray(twoLetterSyllablesNoPolish);
             } else if (currentLevel === 5) {
                 levelTitleElement.textContent = 'Poziom 5 (Sylaby 2-lit. bez PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę:';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.style.fontSize = '4.5rem';
                 questionsOrder = shuffleArray(twoLetterSyllablesNoPolish);
             } else if (currentLevel === 6) {
                 levelTitleElement.textContent = 'Poziom 6 (Sylaby 3-lit. bez PL)';
                 instructionTextElement.textContent = 'Posłuchaj i wybierz pokazaną sylabę:';
                 targetLetterDisplay.style.visibility = 'visible';
                 targetLetterDisplay.setAttribute('title', 'Kliknij, aby usłyszeć sylabę');
-                targetLetterDisplay.style.fontSize = '4rem'; 
                 questionsOrder = shuffleArray(threeLetterSyllablesNoPolish);
             } else if (currentLevel === 7) {
                 levelTitleElement.textContent = 'Poziom 7 (Sylaby 3-lit. bez PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę:';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.style.fontSize = '4rem';
                 questionsOrder = shuffleArray(threeLetterSyllablesNoPolish);
             } else if (currentLevel === 8) {
                 levelTitleElement.textContent = 'Poziom 8 (Sylaby 2-lit. PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę (z polskimi znakami!):';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.style.fontSize = '4.5rem';
                 questionsOrder = shuffleArray(twoLetterSyllablesWithPolish);
             } else if (currentLevel === 9) {
                 levelTitleElement.textContent = 'Poziom 9 (Sylaby 3-lit. PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszaną sylabę (z polskimi znakami!):';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.style.fontSize = '4rem';
                 questionsOrder = shuffleArray(threeLetterSyllablesWithPolish);
             } else if (currentLevel === 10) {
                 levelTitleElement.textContent = 'Poziom 10 (Słowa 2-syl. bez PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszane słowo:';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.style.fontSize = '3rem';
                 questionsOrder = shuffleArray(twoSyllableWordsNoPolish);
             } else if (currentLevel === 11) {
                 levelTitleElement.textContent = 'Poziom 11 (Słowa 3-syl. PL, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszane słowo (z polskimi znakami!):';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.style.fontSize = '2.5rem';
                 questionsOrder = shuffleArray(threeSyllableWordsWithPolish);
             } else if (currentLevel === 12) {
                 levelTitleElement.textContent = 'Poziom 12 (Słowa złożone, słuch)';
                 instructionTextElement.textContent = 'Posłuchaj uważnie i wybierz usłyszane słowo (trudne słowa!):';
                 targetLetterDisplay.setAttribute('title', 'Posłuchaj uważnie');
-                targetLetterDisplay.style.fontSize = '2rem'; 
                 questionsOrder = shuffleArray(complexWordsAndPhrases);
             }
             
@@ -950,16 +961,8 @@
                 const button = document.createElement('button');
                 button.textContent = optionItem; 
                 
-                // Set dynamic font sizes based on content length and level
-                let fontSize = '1.25rem';
-                if ((currentLevel === 4 || currentLevel === 5 || currentLevel === 8) && optionItem.length > 1) fontSize = '1.125rem'; 
-                if ((currentLevel === 6 || currentLevel === 7 || currentLevel === 9) && optionItem.length > 2) fontSize = '1rem'; 
-                if (currentLevel === 10 && optionItem.length > 3) fontSize = '0.875rem';
-                if (currentLevel === 11 && optionItem.length > 5) fontSize = '0.75rem';
-                if (currentLevel === 12 && optionItem.length > 7) fontSize = '0.7rem';
-
+                // Use consistent styling via CSS classes
                 button.className = 'option-button';
-                button.style.fontSize = fontSize;
                 button.addEventListener('click', () => handleOptionClick(optionItem, correctItem, button));
                 optionsContainer.appendChild(button);
             });
