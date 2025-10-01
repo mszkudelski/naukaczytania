@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useEffect } from 'preact/hooks';
 import { useGameState } from '../hooks/useGameState';
+import { useModalManager } from '../hooks/useModalManager';
+import { useScreenNavigation } from '../hooks/useScreenNavigation';
 import { initializeAudio } from '../utils/audio';
 import { StartScreen } from './StartScreen';
 import { GameArea } from './GameArea';
@@ -10,12 +12,8 @@ import { EndGameModal } from './EndGameModal';
 
 export function App() {
     const gameState = useGameState();
-    const [currentScreen, setCurrentScreen] = useState('start'); // 'start' | 'game'
-    const [showMasterModal, setShowMasterModal] = useState(false);
-    const [showLevelUpModal, setShowLevelUpModal] = useState(false);
-    const [showEndGameModal, setShowEndGameModal] = useState(false);
-    const [levelUpData, setLevelUpData] = useState(null);
-    const [endGameData, setEndGameData] = useState(null);
+    const navigation = useScreenNavigation();
+    const modals = useModalManager();
 
     // Initialize audio on mount
     useEffect(() => {
@@ -24,60 +22,55 @@ export function App() {
 
     const handleStartGame = (level = 1) => {
         gameState.initGame(level);
-        setCurrentScreen('game');
-        setShowMasterModal(false);
+        navigation.goToGame();
+        modals.closeMasterModal();
     };
 
     const handleResumeGame = () => {
         gameState.resumeGame();
-        setCurrentScreen('game');
+        navigation.goToGame();
     };
 
     const handleNewGame = () => {
         gameState.startNewGame();
-        setCurrentScreen('game');
+        navigation.goToGame();
     };
 
     const handleBackToStart = () => {
-        setCurrentScreen('start');
-        setShowLevelUpModal(false);
-        setShowEndGameModal(false);
+        navigation.goToStart();
+        modals.closeAllModals();
     };
 
     const handleLevelUp = (nextLevel, previousScore) => {
-        setLevelUpData({ nextLevel, previousScore });
-        setShowLevelUpModal(true);
+        modals.openLevelUpModal(nextLevel, previousScore);
     };
 
     const handleStartNextLevel = () => {
-        if (levelUpData) {
-            gameState.levelUp(levelUpData.nextLevel);
-            setShowLevelUpModal(false);
-            // Stay on game screen, game will reinitialize
+        if (modals.levelUpData) {
+            gameState.levelUp(modals.levelUpData.nextLevel);
+            modals.closeLevelUpModal();
         }
     };
 
     const handleEndGame = (level, score, isComplete = false) => {
-        setEndGameData({ level, score, isComplete });
-        setShowEndGameModal(true);
+        modals.openEndGameModal(level, score, isComplete);
     };
 
     const handleRestartFromEnd = () => {
         gameState.startNewGame();
-        setShowEndGameModal(false);
-        // Stay on game screen
+        modals.closeEndGameModal();
     };
 
     return (
         <div className="container">
-            {currentScreen === 'start' && (
+            {navigation.isOnStartScreen && (
                 <StartScreen
                     onStartGame={handleStartGame}
-                    onShowMasterMode={() => setShowMasterModal(true)}
+                    onShowMasterMode={modals.openMasterModal}
                 />
             )}
 
-            {currentScreen === 'game' && (
+            {navigation.isOnGameScreen && (
                 <GameArea
                     gameState={gameState}
                     onLevelUp={handleLevelUp}
@@ -95,27 +88,27 @@ export function App() {
                 />
             )}
 
-            {showMasterModal && (
+            {modals.showMasterModal && (
                 <MasterModeModal
                     onStartLevel={handleStartGame}
-                    onClose={() => setShowMasterModal(false)}
+                    onClose={modals.closeMasterModal}
                 />
             )}
 
-            {showLevelUpModal && levelUpData && (
+            {modals.showLevelUpModal && modals.levelUpData && (
                 <LevelUpModal
-                    nextLevel={levelUpData.nextLevel}
-                    previousScore={levelUpData.previousScore}
+                    nextLevel={modals.levelUpData.nextLevel}
+                    previousScore={modals.levelUpData.previousScore}
                     onStartNextLevel={handleStartNextLevel}
                     onRestartGame={handleBackToStart}
                 />
             )}
 
-            {showEndGameModal && endGameData && (
+            {modals.showEndGameModal && modals.endGameData && (
                 <EndGameModal
-                    level={endGameData.level}
-                    score={endGameData.score}
-                    isComplete={endGameData.isComplete}
+                    level={modals.endGameData.level}
+                    score={modals.endGameData.score}
+                    isComplete={modals.endGameData.isComplete}
                     onRestart={handleRestartFromEnd}
                 />
             )}
@@ -124,7 +117,7 @@ export function App() {
             <button
                 id="persistent-master-mode-button"
                 className="btn btn-secondary"
-                onClick={() => setShowMasterModal(true)}
+                onClick={modals.openMasterModal}
             >
                 Tryb Mistrza
             </button>
