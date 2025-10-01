@@ -27,17 +27,15 @@ export function useGameQuestion(currentLevel, gameData, gameState) {
             );
             setOptions(newOptions);
 
-            // Auto-speak for audio levels
-            if (currentLevelData.useAudio) {
-                setTimeout(() => {
-                    speakText(currentQuestion);
-                }, 500);
-            }
+            // Auto-speak for all levels - always read the word/syllable/letter
+            setTimeout(() => {
+                speakText(currentQuestion);
+            }, 500);
         }
     }, [currentQuestion, currentLevelData]);
 
     const handleTargetClick = () => {
-        if (currentQuestion && currentLevelData?.useAudio) {
+        if (currentQuestion) {
             speakText(currentQuestion);
         }
     };

@@ -14,7 +14,7 @@ export const polishChars = ['Ą', 'Ć', 'Ę', 'Ł', 'Ń', 'Ó', 'Ś', 'Ź', 'Ż'
 export const gameData = {
     1: {
         title: "Poziom 1: Jaka to litera?",
-        instruction: "Wybierz pokazaną literę:",
+        instruction: "Posłuchaj i wybierz pokazaną literę:",
         letters: [...basicLetters],
         distractors: [...basicLetters],
         useAudio: false
@@ -35,7 +35,7 @@ export const gameData = {
     },
     4: {
         title: "Poziom 4: Sylaby dwuliterowe",
-        instruction: "Wybierz pokazaną sylabę:",
+        instruction: "Posłuchaj i wybierz pokazaną sylabę:",
         letters: ['MA', 'TA', 'LA', 'DA', 'PA', 'BA', 'KO', 'TO', 'LO', 'DO', 'PO', 'BO', 'ME', 'TE', 'LE', 'DE', 'PE', 'BE', 'MU', 'TU', 'LU', 'DU', 'PU', 'BU', 'SA', 'ZA', 'RA', 'FA', 'WA'],
         distractors: ['MA', 'TA', 'LA', 'DA', 'PA', 'BA', 'KO', 'TO', 'LO', 'DO', 'PO', 'BO', 'ME', 'TE', 'LE', 'DE', 'PE', 'BE', 'MU', 'TU', 'LU', 'DU', 'PU', 'BU', 'SA', 'ZA', 'RA', 'FA', 'WA'],
         useAudio: false
@@ -49,7 +49,7 @@ export const gameData = {
     },
     6: {
         title: "Poziom 6: Sylaby trzyliterowe",
-        instruction: "Wybierz pokazaną sylabę:",
+        instruction: "Posłuchaj i wybierz pokazaną sylabę:",
         letters: ['MAK', 'KOT', 'LAS', 'DOM', 'TOR', 'RAK', 'NOS', 'LIS', 'LOK', 'BAL', 'PAS', 'SEN', 'SOK', 'TYL', 'SAD', 'MOL', 'LOT', 'RAM', 'NUR', 'KAS', 'DAL', 'KOS', 'MYK', 'RYM', 'SER'],
         distractors: ['MAK', 'KOT', 'LAS', 'DOM', 'TOR', 'RAK', 'NOS', 'LIS', 'LOK', 'BAL', 'PAS', 'SEN', 'SOK', 'TYL', 'SAD', 'MOL', 'LOT', 'RAM', 'NUR', 'KAS', 'DAL', 'KOS', 'MYK', 'RYM', 'SER'],
         useAudio: false
