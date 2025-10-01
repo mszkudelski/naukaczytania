@@ -6,8 +6,8 @@
   publish = "dist"
 
 [build.environment]
-  # Node.js version for the build environment
-  NODE_VERSION = "18"
+  # Node.js version for the build environment (Vite requires 20.19+ or 22.12+)
+  NODE_VERSION = "20"
 
 # SPA redirect rule - redirect all routes to index.html for client-side routing
 [[redirects]]

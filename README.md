@@ -15,7 +15,7 @@ A Polish educational reading game for children, built with Preact.
 
 ### Prerequisites
 
-- Node.js (version 16 or higher)
+- Node.js (version 20.19 or higher)
 - npm
 
 ### Setup
@@ -54,7 +54,7 @@ The project includes a `netlify.toml` configuration file for easy deployment to 
 
 - **Build Command**: `npm run build`
 - **Publish Directory**: `dist`
-- **Node Version**: 18
+- **Node Version**: 20 (required by Vite 7+)
 - Includes SPA redirect rules and security headers
 - Optimized caching for static assets
 

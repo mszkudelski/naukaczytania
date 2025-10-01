@@ -11,6 +11,9 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "dependencies": {
     "@preact/preset-vite": "^2.10.2",
     "preact": "^10.27.2",
