@@ -1022,6 +1022,8 @@
                 score++;
                 scoreDisplay.textContent = score;
                 playCorrectSound();
+                // Read the correct answer aloud on success
+                setTimeout(() => speakText(correctItem), 200);
             } else {
                 feedbackDisplay.textContent = 'Spróbuj jeszcze raz!';
                 feedbackDisplay.style.color = '#ef4444';
