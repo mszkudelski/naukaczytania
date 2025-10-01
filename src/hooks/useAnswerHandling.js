@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { playCorrectSound, playIncorrectSound } from '../utils/audio';
+import { playCorrectSound, playIncorrectSound, speakText } from '../utils/audio';
 import { checkLevelUp } from '../utils/gameLogic';
 import { LEVEL_UP_THRESHOLD } from '../utils/gameData';
 
@@ -81,16 +81,22 @@ export function useAnswerHandling(gameState, onLevelUp, onEndGame) {
         const isCorrect = option === currentQuestion;
         addVisualFeedback(option, isCorrect);
 
-        if (isCorrect) {
-            const newScore = gameState.updateScore(1);
-            const isLevelUp = handleCorrectAnswer(newScore);
-            if (isLevelUp) return; // Don't continue if leveling up
-        } else {
-            handleIncorrectAnswer();
-        }
+        // First, read the selected answer aloud
+        speakText(option);
+        
+        // Wait for the speech to complete, then provide feedback
+        setTimeout(() => {
+            if (isCorrect) {
+                const newScore = gameState.updateScore(1);
+                const isLevelUp = handleCorrectAnswer(newScore);
+                if (isLevelUp) return; // Don't continue if leveling up
+            } else {
+                handleIncorrectAnswer();
+            }
 
-        // Move to next question after delay
-        setTimeout(handleNextQuestion, 1500);
+            // Move to next question after additional delay for feedback
+            setTimeout(handleNextQuestion, 1500);
+        }, 800); // Wait for speech to complete
     };
 
     return {
