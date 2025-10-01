@@ -46,6 +46,20 @@ This creates a `dist/` folder with optimized files ready for deployment.
 npm run preview
 ```
 
+## Deployment
+
+### Netlify
+
+The project includes a `netlify.toml` configuration file for easy deployment to Netlify:
+
+- **Build Command**: `npm run build`
+- **Publish Directory**: `dist`
+- **Node Version**: 18
+- Includes SPA redirect rules and security headers
+- Optimized caching for static assets
+
+Simply connect your GitHub repository to Netlify and it will automatically deploy using these settings.
+
 ## Architecture
 
 The application has been migrated from vanilla JavaScript to Preact for better maintainability and state management:
