@@ -76,8 +76,11 @@ export function useGameState() {
     const nextQuestion = () => {
         setCurrentQuestionIndex(prev => {
             const newIndex = prev + 1;
-            // Save the new question index
-            saveGameState(currentLevel, currentScore, newIndex, questionsOrder);
+            // Only save the question index, not the score (which may be stale)
+            // We need to read the current score from localStorage to avoid overwriting recent updates
+            const savedScore = localStorage.getItem(STORAGE_KEY_SCORE);
+            const currentScoreValue = savedScore ? parseInt(savedScore) : currentScore;
+            saveGameState(currentLevel, currentScoreValue, newIndex, questionsOrder);
             return newIndex;
         });
     };
