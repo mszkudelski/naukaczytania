@@ -50,6 +50,7 @@ export function useGameState() {
         setCurrentLevel(level);
         setCurrentScore(resumeScore);
         setCurrentQuestionIndex(0);
+        setQuestionsOrder([]); // Always clear questions when starting/restarting a level
         setShowResumeModal(false);
         
         // Save initial state if starting fresh
