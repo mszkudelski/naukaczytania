@@ -11,7 +11,7 @@ export function useGameQuestion(currentLevel, gameData, gameState) {
 
     // Initialize questions when level changes
     useEffect(() => {
-        if (currentLevelData) {
+        if (currentLevelData && gameState.questionsOrder.length === 0) {
             const questions = generateQuestionsOrder(shuffleArray([...currentLevelData.letters]), 15);
             gameState.setQuestionsOrder(questions);
         }

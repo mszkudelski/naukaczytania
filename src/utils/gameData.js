@@ -5,6 +5,8 @@ export const NUM_OPTIONS = 3;
 // localStorage keys
 export const STORAGE_KEY_LEVEL = 'readingGame_currentLevel';
 export const STORAGE_KEY_SCORE = 'readingGame_currentScore';
+export const STORAGE_KEY_QUESTION_INDEX = 'readingGame_currentQuestionIndex';
+export const STORAGE_KEY_QUESTIONS_ORDER = 'readingGame_questionsOrder';
 
 // Letter arrays
 export const basicLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'W', 'Y', 'Z'];
