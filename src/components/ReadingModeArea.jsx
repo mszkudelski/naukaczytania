@@ -13,7 +13,7 @@ const WAIT_TIME = 10000; // 10 seconds
 const SPEECH_DELAY = 500; // Delay before speaking
 const NEXT_WORD_DELAY = 2000; // Delay before moving to next word
 const SENTENCE_COMPLETE_DELAY = 3000; // Delay before loading new sentence
-const WORD_CORRECT_DELAY = 300; // Very short delay for visual feedback after correct word
+const WORD_CORRECT_DELAY = 800; // Smooth delay for visual feedback after correct word
 const RECOGNITION_RETRY_DELAY = 100; // Delay before retrying recognition
 
 export function ReadingModeArea({ onBackToStart }) {
@@ -33,6 +33,7 @@ export function ReadingModeArea({ onBackToStart }) {
     const timerRef = useRef(null);
     const waitTimerRef = useRef(null);
     const isMountedRef = useRef(true);
+    const wordMatchedRef = useRef(false); // Prevent double counting same word
 
     // Initialize with a random sentence
     useEffect(() => {
@@ -98,6 +99,7 @@ export function ReadingModeArea({ onBackToStart }) {
         setTimeLeft(WAIT_TIME / 1000);
         setRecognizedText('');
         setFeedback('👂 Posłuchaj uważnie:');
+        wordMatchedRef.current = false; // Reset flag for new word
 
         // First, read the word aloud
         setTimeout(() => {
@@ -163,23 +165,29 @@ export function ReadingModeArea({ onBackToStart }) {
                     setRecognizedText(lastWord);
                     
                     // Check if the spoken word matches the current word (check on every result, not just final)
-                    const isCorrect = checkWordMatch(latestResult.transcript, words[currentWordIndex]);
-                    
-                    if (isCorrect) {
-                        // Correct word spoken! Move immediately without repeating
-                        stopListening();
-                        setIsListening(false);
-                        setIsWaiting(false);
-                        if (timerRef.current) clearTimeout(timerRef.current);
-                        if (waitTimerRef.current) clearInterval(waitTimerRef.current);
+                    // But only process if we haven't already matched this word
+                    if (!wordMatchedRef.current) {
+                        const isCorrect = checkWordMatch(latestResult.transcript, words[currentWordIndex]);
                         
-                        setFeedback('✅ Świetnie! Dobrze przeczytane!');
-                        setCorrectCount(prev => prev + 1);
-                        
-                        // Move to next word immediately (no delay, no repeat)
-                        setTimeout(() => {
-                            setCurrentWordIndex(prev => prev + 1);
-                        }, WORD_CORRECT_DELAY); // Very short delay just for visual feedback
+                        if (isCorrect) {
+                            // Correct word spoken! Mark as matched to prevent double counting
+                            wordMatchedRef.current = true;
+                            
+                            // Stop listening and clear timers
+                            stopListening();
+                            setIsListening(false);
+                            setIsWaiting(false);
+                            if (timerRef.current) clearTimeout(timerRef.current);
+                            if (waitTimerRef.current) clearInterval(waitTimerRef.current);
+                            
+                            setFeedback('✅ Świetnie!');
+                            setCorrectCount(prev => prev + 1);
+                            
+                            // Move to next word with smooth transition
+                            setTimeout(() => {
+                                setCurrentWordIndex(prev => prev + 1);
+                            }, WORD_CORRECT_DELAY);
+                        }
                     }
                 }
             },
@@ -267,14 +275,17 @@ export function ReadingModeArea({ onBackToStart }) {
 
                 <div className="feedback">{feedback}</div>
 
-                <div className="score-container">
-                    <div className="score-item score-correct">
-                        ✅ Poprawne: <span className="score-value">{correctCount}</span>
+                {/* Counters hidden as requested - tracking still happens in background */}
+                {false && (
+                    <div className="score-container">
+                        <div className="score-item score-correct">
+                            ✅ Poprawne: <span className="score-value">{correctCount}</span>
+                        </div>
+                        <div className="score-item score-incorrect">
+                            ❌ Błędne: <span className="score-value">{incorrectCount}</span>
+                        </div>
                     </div>
-                    <div className="score-item score-incorrect">
-                        ❌ Błędne: <span className="score-value">{incorrectCount}</span>
-                    </div>
-                </div>
+                )}
 
                 <div className="reading-controls">
                     <label className="reading-checkbox-label">
