@@ -86,12 +86,18 @@ export function stopListening() {
 }
 
 // Check if word matches (case insensitive, punctuation removed, preserving Polish characters)
-export function checkWordMatch(spokenWord, targetWord) {
+// If multiple words are spoken, takes only the LAST word
+export function checkWordMatch(spokenText, targetWord) {
     const normalize = (word) => {
         return word.toLowerCase()
             .replace(/[.,!?;:'"„""()[\]{}]/g, '') // Remove common punctuation while preserving letters
             .trim();
     };
     
-    return normalize(spokenWord) === normalize(targetWord);
+    // Split into words and take only the last one
+    const words = normalize(spokenText).split(/\s+/).filter(w => w.length > 0);
+    const lastWord = words.length > 0 ? words[words.length - 1] : '';
+    const normalizedTarget = normalize(targetWord);
+    
+    return lastWord === normalizedTarget;
 }

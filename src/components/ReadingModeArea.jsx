@@ -156,28 +156,30 @@ export function ReadingModeArea({ onBackToStart }) {
                 // Handle speech recognition results
                 if (results && results.length > 0) {
                     const latestResult = results[results.length - 1];
-                    setRecognizedText(latestResult.transcript);
                     
-                    // Check if the spoken word matches the current word
-                    if (latestResult.isFinal) {
-                        const isCorrect = checkWordMatch(latestResult.transcript, words[currentWordIndex]);
+                    // Extract only the last word from the transcript for display
+                    const spokenWords = latestResult.transcript.trim().split(/\s+/).filter(w => w.length > 0);
+                    const lastWord = spokenWords.length > 0 ? spokenWords[spokenWords.length - 1] : latestResult.transcript;
+                    setRecognizedText(lastWord);
+                    
+                    // Check if the spoken word matches the current word (check on every result, not just final)
+                    const isCorrect = checkWordMatch(latestResult.transcript, words[currentWordIndex]);
+                    
+                    if (isCorrect) {
+                        // Correct word spoken! Move immediately without repeating
+                        stopListening();
+                        setIsListening(false);
+                        setIsWaiting(false);
+                        if (timerRef.current) clearTimeout(timerRef.current);
+                        if (waitTimerRef.current) clearInterval(waitTimerRef.current);
                         
-                        if (isCorrect) {
-                            // Correct word spoken! Move immediately without repeating
-                            stopListening();
-                            setIsListening(false);
-                            setIsWaiting(false);
-                            if (timerRef.current) clearTimeout(timerRef.current);
-                            if (waitTimerRef.current) clearInterval(waitTimerRef.current);
-                            
-                            setFeedback('✅ Świetnie! Dobrze przeczytane!');
-                            setCorrectCount(prev => prev + 1);
-                            
-                            // Move to next word immediately (no delay, no repeat)
-                            setTimeout(() => {
-                                setCurrentWordIndex(prev => prev + 1);
-                            }, WORD_CORRECT_DELAY); // Very short delay just for visual feedback
-                        }
+                        setFeedback('✅ Świetnie! Dobrze przeczytane!');
+                        setCorrectCount(prev => prev + 1);
+                        
+                        // Move to next word immediately (no delay, no repeat)
+                        setTimeout(() => {
+                            setCurrentWordIndex(prev => prev + 1);
+                        }, WORD_CORRECT_DELAY); // Very short delay just for visual feedback
                     }
                 }
             },
