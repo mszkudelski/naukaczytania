@@ -12,7 +12,7 @@ const WAIT_TIME = 10000; // 10 seconds
 const SPEECH_DELAY = 500; // Delay before speaking
 const NEXT_WORD_DELAY = 2000; // Delay before moving to next word
 const SENTENCE_COMPLETE_DELAY = 3000; // Delay before loading new sentence
-const WORD_CORRECT_DELAY = 1000; // Delay after correct word
+const WORD_CORRECT_DELAY = 300; // Very short delay for visual feedback after correct word
 const RECOGNITION_RETRY_DELAY = 100; // Delay before retrying recognition
 
 export function ReadingModeArea({ onBackToStart }) {
@@ -86,7 +86,7 @@ export function ReadingModeArea({ onBackToStart }) {
         
         if (idx >= wordsToUse.length) {
             // All words completed
-            setFeedback('🎉 Wspaniale! Przeczytałeś całą historię!');
+            setFeedback('🎉 Wspaniale! Przeczytałeś cały tekst!');
             setTimeout(() => {
                 loadNewSentence();
             }, SENTENCE_COMPLETE_DELAY);
@@ -176,7 +176,7 @@ export function ReadingModeArea({ onBackToStart }) {
                             // Move to next word immediately (no delay, no repeat)
                             setTimeout(() => {
                                 setCurrentWordIndex(prev => prev + 1);
-                            }, 300); // Very short delay just for visual feedback
+                            }, WORD_CORRECT_DELAY); // Very short delay just for visual feedback
                         }
                     }
                 }
