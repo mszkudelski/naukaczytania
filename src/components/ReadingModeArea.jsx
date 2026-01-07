@@ -149,6 +149,9 @@ export function ReadingModeArea({ onBackToStart }) {
         setHasReceivedInput(false);
         wordMatchedRef.current = false; // Reset flag for new word
 
+        // Capture skipFirstReading value in closure to use current checkbox state
+        const shouldSkipFirstReading = skipFirstReading;
+        
         // Function to start listening phase
         const startListeningPhase = () => {
             if (!isMountedRef.current) return;
@@ -157,7 +160,7 @@ export function ReadingModeArea({ onBackToStart }) {
             
             // Start listening
             if (isSpeechRecognitionSupported()) {
-                startListeningForWord();
+                startListeningForWord(idx); // Pass word index to listening function
             }
 
             // Set shorter timeout to check if user has started speaking
@@ -210,8 +213,8 @@ export function ReadingModeArea({ onBackToStart }) {
             }, WORD_INCORRECT_DELAY);
         };
 
-        // Start with or without first reading based on option
-        if (skipFirstReading) {
+        // Start with or without first reading based on option (use captured value)
+        if (shouldSkipFirstReading) {
             // Skip first reading, go straight to listening
             startListeningPhase();
         } else {
@@ -257,20 +260,22 @@ export function ReadingModeArea({ onBackToStart }) {
         }, WORD_INCORRECT_DELAY);
     };
 
-    const startListeningForWord = () => {
+    const startListeningForWord = (expectedWordIndex) => {
         if (!isMountedRef.current) return;
         
         setIsListening(true);
         
         // Capture current word index and state in closure to avoid stale state
-        const targetWordIndex = currentWordIndex;
+        // Use passed index if provided, otherwise use current state
+        const targetWordIndex = expectedWordIndex !== undefined ? expectedWordIndex : currentWordIndex;
         const targetWord = words[targetWordIndex];
         let localHasReceivedInput = false;
+        let localIsWaiting = true; // Local flag to track if we're still waiting for this specific word
         
         startListening(
             (results) => {
                 // Handle speech recognition results
-                if (!isMountedRef.current || wordMatchedRef.current) return;
+                if (!isMountedRef.current || wordMatchedRef.current || !localIsWaiting) return;
                 
                 if (results && results.length > 0) {
                     const latestResult = results[results.length - 1];
@@ -285,8 +290,9 @@ export function ReadingModeArea({ onBackToStart }) {
                         }
                         // Set new timeout for incorrect word (2s after receiving input)
                         timerRef.current = setTimeout(() => {
-                            if (!isMountedRef.current || wordMatchedRef.current) return;
+                            if (!isMountedRef.current || wordMatchedRef.current || !localIsWaiting) return;
                             // User spoke but word was incorrect
+                            localIsWaiting = false; // Stop this listening session
                             handleIncorrectWord(targetWordIndex);
                         }, NO_INPUT_THRESHOLD);
                     }
@@ -297,12 +303,13 @@ export function ReadingModeArea({ onBackToStart }) {
                     
                     // Check if the spoken word matches the current word (check on every result, not just final)
                     // But only process if we haven't already matched this word
-                    if (!wordMatchedRef.current) {
+                    if (!wordMatchedRef.current && localIsWaiting) {
                         const isCorrect = checkWordMatch(latestResult.transcript, targetWord);
                         
                         if (isCorrect) {
                             // Correct word spoken! Mark as matched to prevent double counting
                             wordMatchedRef.current = true;
+                            localIsWaiting = false; // Stop this listening session
                             
                             // Stop listening and clear timers
                             stopListening();
@@ -333,19 +340,20 @@ export function ReadingModeArea({ onBackToStart }) {
             },
             () => {
                 // On end - restart listening if still waiting
-                // Only restart if component is mounted, still waiting, and no match found yet
-                if (!isMountedRef.current || wordMatchedRef.current) return;
+                // Only restart if component is mounted, still waiting for THIS word, and no match found yet
+                if (!isMountedRef.current || wordMatchedRef.current || !localIsWaiting) return;
                 
                 setTimeout(() => {
-                    // Check if we should still be listening for this word using captured targetWordIndex
-                    if (isMountedRef.current && isWaiting && !wordMatchedRef.current) {
-                        startListeningForWord();
+                    // Restart with the same expected word index to maintain consistency
+                    if (isMountedRef.current && localIsWaiting && !wordMatchedRef.current) {
+                        startListeningForWord(targetWordIndex);
                     }
                 }, RECOGNITION_RETRY_DELAY);
             },
             (error) => {
                 console.error('Speech recognition error:', error);
                 setIsListening(false);
+                localIsWaiting = false; // Stop this listening session on error
                 // Don't restart on permission errors
                 if (error === 'not-allowed') {
                     return;
