@@ -263,11 +263,19 @@ export function ReadingModeArea({ onBackToStart }) {
     const startListeningForWord = (expectedWordIndex) => {
         if (!isMountedRef.current) return;
         
-        setIsListening(true);
-        
         // Capture current word index and state in closure to avoid stale state
         // Use passed index if provided, otherwise use current state
         const targetWordIndex = expectedWordIndex !== undefined ? expectedWordIndex : currentWordIndex;
+        
+        // Safety check: don't start listening if the target index doesn't match current index
+        // This prevents restarting listening sessions for old words after we've moved on
+        if (targetWordIndex !== currentWordIndex) {
+            console.log(`Skipping startListening for word ${targetWordIndex} - current is ${currentWordIndex}`);
+            return;
+        }
+        
+        setIsListening(true);
+        
         const targetWord = words[targetWordIndex];
         let localHasReceivedInput = false;
         let localIsWaiting = true; // Local flag to track if we're still waiting for this specific word
@@ -341,11 +349,13 @@ export function ReadingModeArea({ onBackToStart }) {
             () => {
                 // On end - restart listening if still waiting
                 // Only restart if component is mounted, still waiting for THIS word, and no match found yet
-                if (!isMountedRef.current || wordMatchedRef.current || !localIsWaiting) return;
+                // ALSO check that we're still on the same word (haven't moved to next word yet)
+                if (!isMountedRef.current || wordMatchedRef.current || !localIsWaiting || targetWordIndex !== currentWordIndex) return;
                 
                 setTimeout(() => {
                     // Restart with the same expected word index to maintain consistency
-                    if (isMountedRef.current && localIsWaiting && !wordMatchedRef.current) {
+                    // Double-check the word index hasn't changed during the timeout
+                    if (isMountedRef.current && localIsWaiting && !wordMatchedRef.current && targetWordIndex === currentWordIndex) {
                         startListeningForWord(targetWordIndex);
                     }
                 }, RECOGNITION_RETRY_DELAY);
