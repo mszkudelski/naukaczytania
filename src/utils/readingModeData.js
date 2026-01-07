@@ -1,28 +1,52 @@
-// Reading mode data - basic Polish words for level 1
-const level1Words = ['mama', 'tata', 'kot', 'pies', 'dom', 'ma', 'lubi', 'sok', 'mleko'];
-const level1Verbs = ['ma', 'lubi', 'widzi', 'woła'];
-const level1Nouns = ['mama', 'tata', 'kot', 'pies', 'dom', 'sok', 'mleko', 'balon', 'auto'];
+// Reading mode data - Polish words organized by complexity
+const words = {
+    level1: {
+        nouns: ['mama', 'tata', 'kot', 'pies', 'dom'],
+        verbs: ['ma', 'je'],
+    },
+    level2: {
+        nouns: ['mama', 'tata', 'kot', 'pies', 'dom', 'sok', 'mleko'],
+        verbs: ['ma', 'je', 'lubi'],
+    },
+    level3: {
+        nouns: ['mama', 'tata', 'kot', 'pies', 'dom', 'sok', 'mleko', 'balon', 'auto'],
+        verbs: ['ma', 'je', 'lubi', 'widzi'],
+    },
+    level4: {
+        nouns: ['mama', 'tata', 'kot', 'pies', 'dom', 'sok', 'mleko', 'balon', 'auto', 'park', 'piłka'],
+        verbs: ['ma', 'je', 'lubi', 'widzi', 'woła', 'bierze'],
+    },
+    level5: {
+        nouns: ['mama', 'tata', 'kot', 'pies', 'dom', 'sok', 'mleko', 'balon', 'auto', 'park', 'piłka', 'książka', 'zabawka'],
+        verbs: ['ma', 'je', 'lubi', 'widzi', 'woła', 'bierze', 'czyta', 'daje'],
+    }
+};
 
-// Function to generate text with repeated words (2-3 sentences)
-export function getRandomSentence() {
+// Function to generate text with repeated words (complexity 1-5)
+export function getRandomSentence(level = 1) {
+    const complexity = Math.max(1, Math.min(5, level)); // Ensure level is 1-5
+    const levelData = words[`level${complexity}`];
+    
+    // Number of sentences increases with complexity
+    const numSentences = Math.min(complexity + 1, 4); // 2-5 sentences
+    
     // Pick 2-3 common words to repeat
     const commonWords = [];
     const numCommonWords = Math.floor(Math.random() * 2) + 2; // 2 or 3 common words
     
     // Shuffle and pick unique words
-    const shuffledNouns = [...level1Nouns].sort(() => Math.random() - 0.5);
+    const shuffledNouns = [...levelData.nouns].sort(() => Math.random() - 0.5);
     for (let i = 0; i < Math.min(numCommonWords, shuffledNouns.length); i++) {
         commonWords.push(shuffledNouns[i]);
     }
     
-    // Generate 2-3 sentences using these common words
+    // Generate sentences using these common words
     const sentences = [];
-    const numSentences = Math.floor(Math.random() * 2) + 2; // 2 or 3 sentences
     
     for (let i = 0; i < numSentences; i++) {
         const subject = commonWords[i % commonWords.length];
-        const verb = level1Verbs[Math.floor(Math.random() * level1Verbs.length)];
-        const object = level1Nouns[Math.floor(Math.random() * level1Nouns.length)];
+        const verb = levelData.verbs[Math.floor(Math.random() * levelData.verbs.length)];
+        const object = levelData.nouns[Math.floor(Math.random() * levelData.nouns.length)];
         
         // Capitalize first letter
         const capitalizedSubject = subject.charAt(0).toUpperCase() + subject.slice(1);
