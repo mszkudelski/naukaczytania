@@ -85,6 +85,16 @@ export function stopListening() {
     }
 }
 
+// Helper function to extract last word from text
+export function getLastWord(text) {
+    const words = text.toLowerCase()
+        .replace(/[.,!?;:'"„""()[\]{}]/g, '')
+        .trim()
+        .split(/\s+/)
+        .filter(w => w.length > 0);
+    return words.length > 0 ? words[words.length - 1] : '';
+}
+
 // Check if word matches (case insensitive, punctuation removed, preserving Polish characters)
 // If multiple words are spoken, takes only the LAST word
 export function checkWordMatch(spokenText, targetWord) {
@@ -94,9 +104,7 @@ export function checkWordMatch(spokenText, targetWord) {
             .trim();
     };
     
-    // Split into words and take only the last one
-    const words = normalize(spokenText).split(/\s+/).filter(w => w.length > 0);
-    const lastWord = words.length > 0 ? words[words.length - 1] : '';
+    const lastWord = getLastWord(spokenText);
     const normalizedTarget = normalize(targetWord);
     
     return lastWord === normalizedTarget;

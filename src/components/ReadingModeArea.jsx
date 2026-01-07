@@ -5,7 +5,8 @@ import {
     isSpeechRecognitionSupported, 
     startListening, 
     stopListening, 
-    checkWordMatch 
+    checkWordMatch,
+    getLastWord
 } from '../utils/speechRecognition';
 
 const WAIT_TIME = 10000; // 10 seconds
@@ -158,8 +159,7 @@ export function ReadingModeArea({ onBackToStart }) {
                     const latestResult = results[results.length - 1];
                     
                     // Extract only the last word from the transcript for display
-                    const spokenWords = latestResult.transcript.trim().split(/\s+/).filter(w => w.length > 0);
-                    const lastWord = spokenWords.length > 0 ? spokenWords[spokenWords.length - 1] : latestResult.transcript;
+                    const lastWord = getLastWord(latestResult.transcript);
                     setRecognizedText(lastWord);
                     
                     // Check if the spoken word matches the current word (check on every result, not just final)
