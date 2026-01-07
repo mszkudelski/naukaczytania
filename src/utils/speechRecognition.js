@@ -89,7 +89,7 @@ export function stopListening() {
 export function checkWordMatch(spokenWord, targetWord) {
     const normalize = (word) => {
         return word.toLowerCase()
-            .replace(/[.,!?;:]/g, '')
+            .replace(/[^\w\s]/g, '') // Remove all punctuation
             .trim();
     };
     

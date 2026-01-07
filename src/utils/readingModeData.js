@@ -17,6 +17,9 @@ export const level1Sentences = [
     "Pies lubi park."
 ];
 
+// Similarity threshold for word matching
+const SIMILARITY_THRESHOLD = 2;
+
 // Function to get a random sentence for level 1
 export function getRandomSentence() {
     const randomIndex = Math.floor(Math.random() * level1Sentences.length);
@@ -58,8 +61,8 @@ export function findSimilarWords(targetWord, allWords) {
             }
         }
         
-        // If at least 2 characters match, consider it similar
-        if (commonChars >= 2) {
+        // If at least SIMILARITY_THRESHOLD characters match, consider it similar
+        if (commonChars >= SIMILARITY_THRESHOLD) {
             similar.push(index);
         }
     });

@@ -119,15 +119,20 @@ export function ReadingModeArea({ onBackToStart }) {
             setIsListening(false);
             setFeedback('Posłuchaj jak się czyta to słowo:');
             
-            // Read the current word aloud
-            setTimeout(() => {
-                speakText(words[currentWordIndex]);
-                
-                // Move to next word after reading
+            // Check if we still have valid words and index
+            if (words.length > 0 && currentWordIndex < words.length) {
+                // Read the current word aloud
                 setTimeout(() => {
-                    setCurrentWordIndex(prev => prev + 1);
-                }, NEXT_WORD_DELAY);
-            }, SPEECH_DELAY);
+                    if (words[currentWordIndex]) {
+                        speakText(words[currentWordIndex]);
+                    }
+                    
+                    // Move to next word after reading
+                    setTimeout(() => {
+                        setCurrentWordIndex(prev => prev + 1);
+                    }, NEXT_WORD_DELAY);
+                }, SPEECH_DELAY);
+            }
         }, WAIT_TIME);
     };
 
@@ -191,7 +196,7 @@ export function ReadingModeArea({ onBackToStart }) {
         if (currentWordIndex > 0 && currentWordIndex < words.length) {
             startWaitingForWord();
         }
-    }, [currentWordIndex]);
+    }, [currentWordIndex, words]);
 
     const getWordClassName = (index) => {
         const classes = ['reading-word'];
