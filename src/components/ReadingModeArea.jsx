@@ -123,9 +123,7 @@ export function ReadingModeArea({ onBackToStart }) {
             if (words.length > 0 && currentWordIndex < words.length) {
                 // Read the current word aloud
                 setTimeout(() => {
-                    if (words[currentWordIndex]) {
-                        speakText(words[currentWordIndex]);
-                    }
+                    speakText(words[currentWordIndex]);
                     
                     // Move to next word after reading
                     setTimeout(() => {
@@ -192,6 +190,8 @@ export function ReadingModeArea({ onBackToStart }) {
     };
 
     // Restart waiting when word index changes
+    // Note: startWaitingForWord is intentionally not in the dependency array
+    // to avoid infinite re-renders. It uses current state values when called.
     useEffect(() => {
         if (currentWordIndex > 0 && currentWordIndex < words.length) {
             startWaitingForWord();

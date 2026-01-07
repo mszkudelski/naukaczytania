@@ -22,6 +22,9 @@ const SIMILARITY_THRESHOLD = 2;
 
 // Function to get a random sentence for level 1
 export function getRandomSentence() {
+    if (level1Sentences.length === 0) {
+        return "Mama ma kota."; // Fallback sentence
+    }
     const randomIndex = Math.floor(Math.random() * level1Sentences.length);
     return level1Sentences[randomIndex];
 }

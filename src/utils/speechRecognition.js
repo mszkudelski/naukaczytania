@@ -85,11 +85,11 @@ export function stopListening() {
     }
 }
 
-// Check if word matches (case insensitive, punctuation removed)
+// Check if word matches (case insensitive, punctuation removed, preserving Polish characters)
 export function checkWordMatch(spokenWord, targetWord) {
     const normalize = (word) => {
         return word.toLowerCase()
-            .replace(/[^\w\s]/g, '') // Remove all punctuation
+            .replace(/[.,!?;:'"„""()[\]{}]/g, '') // Remove common punctuation while preserving letters
             .trim();
     };
     
