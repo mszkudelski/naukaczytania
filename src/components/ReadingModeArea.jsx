@@ -22,7 +22,8 @@ export function ReadingModeArea({ onBackToStart }) {
     const [isListening, setIsListening] = useState(false);
     const [recognizedText, setRecognizedText] = useState('');
     const [feedback, setFeedback] = useState('');
-    const [score, setScore] = useState(0);
+    const [correctCount, setCorrectCount] = useState(0);
+    const [incorrectCount, setIncorrectCount] = useState(0);
     const [highlightSimilar, setHighlightSimilar] = useState(false);
     const [similarWordIndices, setSimilarWordIndices] = useState([]);
     const [isWaiting, setIsWaiting] = useState(false);
@@ -85,7 +86,7 @@ export function ReadingModeArea({ onBackToStart }) {
         
         if (idx >= wordsToUse.length) {
             // All words completed
-            setFeedback('Świetnie! Przeczytałeś całe zdanie! 🎉');
+            setFeedback('🎉 Wspaniale! Przeczytałeś całą historię!');
             setTimeout(() => {
                 loadNewSentence();
             }, SENTENCE_COMPLETE_DELAY);
@@ -95,7 +96,7 @@ export function ReadingModeArea({ onBackToStart }) {
         setIsWaiting(true);
         setTimeLeft(WAIT_TIME / 1000);
         setRecognizedText('');
-        setFeedback('Posłuchaj:');
+        setFeedback('👂 Posłuchaj uważnie:');
 
         // First, read the word aloud
         setTimeout(() => {
@@ -105,7 +106,7 @@ export function ReadingModeArea({ onBackToStart }) {
             
             // After reading, start listening and countdown
             setTimeout(() => {
-                setFeedback('Teraz ty przeczytaj to słowo:');
+                setFeedback('🎤 Teraz Ty! Przeczytaj to słowo:');
                 
                 // Start countdown timer
                 let timeRemaining = WAIT_TIME / 1000;
@@ -122,12 +123,13 @@ export function ReadingModeArea({ onBackToStart }) {
                     startListeningForWord();
                 }
 
-                // Set timer to read aloud again after WAIT_TIME
+                // Set timer to read aloud again after WAIT_TIME (only if child didn't read correctly)
                 timerRef.current = setTimeout(() => {
                     stopListening();
                     setIsWaiting(false);
                     setIsListening(false);
-                    setFeedback('Posłuchaj jeszcze raz:');
+                    setFeedback('❌ Nie udało się. Posłuchaj jeszcze raz:');
+                    setIncorrectCount(prev => prev + 1);
                     
                     // Check if we still have valid words and index
                     if (words.length > 0 && currentWordIndex < words.length) {
@@ -161,20 +163,20 @@ export function ReadingModeArea({ onBackToStart }) {
                         const isCorrect = checkWordMatch(latestResult.transcript, words[currentWordIndex]);
                         
                         if (isCorrect) {
-                            // Correct word spoken!
+                            // Correct word spoken! Move immediately without repeating
                             stopListening();
                             setIsListening(false);
                             setIsWaiting(false);
                             if (timerRef.current) clearTimeout(timerRef.current);
                             if (waitTimerRef.current) clearInterval(waitTimerRef.current);
                             
-                            setFeedback('Świetnie! ✓');
-                            setScore(prev => prev + 1);
+                            setFeedback('✅ Świetnie! Dobrze przeczytane!');
+                            setCorrectCount(prev => prev + 1);
                             
-                            // Move to next word
+                            // Move to next word immediately (no delay, no repeat)
                             setTimeout(() => {
                                 setCurrentWordIndex(prev => prev + 1);
-                            }, WORD_CORRECT_DELAY);
+                            }, 300); // Very short delay just for visual feedback
                         }
                     }
                 }
@@ -263,8 +265,13 @@ export function ReadingModeArea({ onBackToStart }) {
 
                 <div className="feedback">{feedback}</div>
 
-                <div className="score">
-                    Przeczytane słowa: <span className="score-value">{score}</span>
+                <div className="score-container">
+                    <div className="score-item score-correct">
+                        ✅ Poprawne: <span className="score-value">{correctCount}</span>
+                    </div>
+                    <div className="score-item score-incorrect">
+                        ❌ Błędne: <span className="score-value">{incorrectCount}</span>
+                    </div>
                 </div>
 
                 <div className="reading-controls">

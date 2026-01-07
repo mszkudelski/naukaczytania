@@ -630,6 +630,41 @@ body {
     font-style: italic;
 }
 
+.score-container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+}
+
+.score-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.score-correct {
+    color: var(--success-color);
+    border-left: 4px solid var(--success-color);
+}
+
+.score-incorrect {
+    color: var(--danger-color);
+    border-left: 4px solid var(--danger-color);
+}
+
+.score-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
 .reading-controls {
     display: flex;
     flex-direction: column;
