@@ -34,15 +34,27 @@ export function findSimilarWords(targetWord, allWords) {
     const similar = [];
     const targetLower = targetWord.toLowerCase();
     
+    // Create character frequency map for target word
+    const targetCharFreq = {};
+    for (let char of targetLower) {
+        targetCharFreq[char] = (targetCharFreq[char] || 0) + 1;
+    }
+    
     allWords.forEach((word, index) => {
         const wordLower = word.toLowerCase();
         if (wordLower === targetLower) return; // Skip the same word
         
-        // Count common characters
+        // Count common characters using frequency map
         let commonChars = 0;
-        for (let char of targetLower) {
-            if (wordLower.includes(char)) {
-                commonChars++;
+        const wordCharFreq = {};
+        for (let char of wordLower) {
+            wordCharFreq[char] = (wordCharFreq[char] || 0) + 1;
+        }
+        
+        // Count overlapping characters
+        for (let char in targetCharFreq) {
+            if (wordCharFreq[char]) {
+                commonChars += Math.min(targetCharFreq[char], wordCharFreq[char]);
             }
         }
         

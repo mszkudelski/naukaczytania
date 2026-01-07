@@ -9,6 +9,11 @@ import {
 } from '../utils/speechRecognition';
 
 const WAIT_TIME = 10000; // 10 seconds
+const SPEECH_DELAY = 500; // Delay before speaking
+const NEXT_WORD_DELAY = 2000; // Delay before moving to next word
+const SENTENCE_COMPLETE_DELAY = 3000; // Delay before loading new sentence
+const WORD_CORRECT_DELAY = 1000; // Delay after correct word
+const RECOGNITION_RETRY_DELAY = 100; // Delay before retrying recognition
 
 export function ReadingModeArea({ onBackToStart }) {
     const [sentence, setSentence] = useState('');
@@ -83,7 +88,7 @@ export function ReadingModeArea({ onBackToStart }) {
             setFeedback('Świetnie! Przeczytałeś całe zdanie! 🎉');
             setTimeout(() => {
                 loadNewSentence();
-            }, 3000);
+            }, SENTENCE_COMPLETE_DELAY);
             return;
         }
 
@@ -121,8 +126,8 @@ export function ReadingModeArea({ onBackToStart }) {
                 // Move to next word after reading
                 setTimeout(() => {
                     setCurrentWordIndex(prev => prev + 1);
-                }, 2000);
-            }, 500);
+                }, NEXT_WORD_DELAY);
+            }, SPEECH_DELAY);
         }, WAIT_TIME);
     };
 
@@ -154,19 +159,21 @@ export function ReadingModeArea({ onBackToStart }) {
                             // Move to next word
                             setTimeout(() => {
                                 setCurrentWordIndex(prev => prev + 1);
-                            }, 1000);
+                            }, WORD_CORRECT_DELAY);
                         }
                     }
                 }
             },
             () => {
                 // On end - restart listening if still waiting
-                // Only restart if we're still waiting and haven't encountered an error
+                // Only restart if component is mounted, still waiting, and no errors occurred
+                if (!isMountedRef.current) return;
+                
                 setTimeout(() => {
                     if (isMountedRef.current && isWaiting && currentWordIndex < words.length && isListening) {
                         startListeningForWord();
                     }
-                }, 100);
+                }, RECOGNITION_RETRY_DELAY);
             },
             (error) => {
                 console.error('Speech recognition error:', error);
