@@ -56,7 +56,7 @@ export function ReadingModeArea({ onBackToStart }) {
 
     // Start waiting for word when currentWordIndex changes (for words after the first one)
     useEffect(() => {
-        if (words.length > 0 && currentWordIndex > 0 && currentWordIndex < words.length) {
+        if (words.length > 0 && currentWordIndex > 0) {
             // Clean up any existing timeouts before starting new word
             if (timerRef.current) clearTimeout(timerRef.current);
             if (waitTimerRef.current) clearInterval(waitTimerRef.current);
