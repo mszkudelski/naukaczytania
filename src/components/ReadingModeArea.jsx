@@ -155,6 +155,11 @@ export function ReadingModeArea({ onBackToStart }) {
         // Function to start listening phase
         const startListeningPhase = () => {
             if (!isMountedRef.current) return;
+            // Verify we're still on the same word index before starting listening
+            if (currentWordIndex !== idx) {
+                console.log(`Skipping startListeningPhase for word ${idx} - current is ${currentWordIndex}`);
+                return;
+            }
             
             setFeedback('🎤 Przeczytaj to słowo:');
             
@@ -165,13 +170,13 @@ export function ReadingModeArea({ onBackToStart }) {
 
             // Set shorter timeout to check if user has started speaking
             inputTimeoutRef.current = setTimeout(() => {
-                if (!isMountedRef.current) return;
+                if (!isMountedRef.current || currentWordIndex !== idx) return;
                 // If no input received after 2 seconds, extend wait time
                 if (!hasReceivedInput && !wordMatchedRef.current) {
                     // Continue waiting up to full WAIT_TIME
                     const remainingTime = WAIT_TIME - NO_INPUT_THRESHOLD;
                     timerRef.current = setTimeout(() => {
-                        if (!isMountedRef.current) return;
+                        if (!isMountedRef.current || currentWordIndex !== idx) return;
                         if (!wordMatchedRef.current) {
                             handleIncorrectOrTimeout(idx);
                         }
@@ -182,7 +187,7 @@ export function ReadingModeArea({ onBackToStart }) {
 
         // Handle incorrect or timeout case
         const handleIncorrectOrTimeout = (wordIdx) => {
-            if (!isMountedRef.current) return;
+            if (!isMountedRef.current || currentWordIndex !== wordIdx) return;
             
             stopListening();
             setIsWaiting(false);
@@ -199,14 +204,14 @@ export function ReadingModeArea({ onBackToStart }) {
             
             // Show feedback for 2 seconds, then read word and move on
             setTimeout(() => {
-                if (!isMountedRef.current) return;
+                if (!isMountedRef.current || currentWordIndex !== wordIdx) return;
                 if (wordsToUse.length > 0 && wordIdx < wordsToUse.length) {
                     setFeedback('👂 Posłuchaj jeszcze raz:');
                     speakText(wordsToUse[wordIdx]);
                     
                     // Move to next word after reading
                     setTimeout(() => {
-                        if (!isMountedRef.current) return;
+                        if (!isMountedRef.current || currentWordIndex !== wordIdx) return;
                         setCurrentWordIndex(wordIdx + 1);
                     }, NEXT_WORD_DELAY);
                 }
@@ -221,14 +226,14 @@ export function ReadingModeArea({ onBackToStart }) {
             // Read the word first
             setFeedback('👂 Posłuchaj uważnie:');
             setTimeout(() => {
-                if (!isMountedRef.current) return;
+                if (!isMountedRef.current || currentWordIndex !== idx) return;
                 if (wordsToUse[idx]) {
                     speakText(wordsToUse[idx]);
                 }
                 
                 // After reading, start listening phase
                 setTimeout(() => {
-                    if (!isMountedRef.current) return;
+                    if (!isMountedRef.current || currentWordIndex !== idx) return;
                     startListeningPhase();
                 }, 1500);
             }, SPEECH_DELAY);
@@ -236,7 +241,7 @@ export function ReadingModeArea({ onBackToStart }) {
     };
 
     const handleIncorrectWord = (targetWordIndex) => {
-        if (!isMountedRef.current) return;
+        if (!isMountedRef.current || currentWordIndex !== targetWordIndex) return;
         
         stopListening();
         setIsWaiting(false);
@@ -253,7 +258,7 @@ export function ReadingModeArea({ onBackToStart }) {
         
         // Show feedback for 2 seconds, then continue
         setTimeout(() => {
-            if (!isMountedRef.current) return;
+            if (!isMountedRef.current || currentWordIndex !== targetWordIndex) return;
             setFeedback('');
             // Don't repeat - just move to next word using the captured index
             setCurrentWordIndex(targetWordIndex + 1);
