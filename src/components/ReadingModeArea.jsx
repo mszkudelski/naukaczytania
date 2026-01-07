@@ -95,43 +95,55 @@ export function ReadingModeArea({ onBackToStart }) {
         setIsWaiting(true);
         setTimeLeft(WAIT_TIME / 1000);
         setRecognizedText('');
-        setFeedback('');
+        setFeedback('Posłuchaj:');
 
-        // Start countdown timer
-        let timeRemaining = WAIT_TIME / 1000;
-        waitTimerRef.current = setInterval(() => {
-            timeRemaining--;
-            setTimeLeft(timeRemaining);
-            if (timeRemaining <= 0) {
-                clearInterval(waitTimerRef.current);
+        // First, read the word aloud
+        setTimeout(() => {
+            if (words[currentWordIndex]) {
+                speakText(words[currentWordIndex]);
             }
-        }, 1000);
-
-        // Start listening
-        if (isSpeechRecognitionSupported()) {
-            startListeningForWord();
-        }
-
-        // Set timer to read aloud after WAIT_TIME
-        timerRef.current = setTimeout(() => {
-            stopListening();
-            setIsWaiting(false);
-            setIsListening(false);
-            setFeedback('Posłuchaj jak się czyta to słowo:');
             
-            // Check if we still have valid words and index
-            if (words.length > 0 && currentWordIndex < words.length) {
-                // Read the current word aloud
-                setTimeout(() => {
-                    speakText(words[currentWordIndex]);
+            // After reading, start listening and countdown
+            setTimeout(() => {
+                setFeedback('Teraz ty przeczytaj to słowo:');
+                
+                // Start countdown timer
+                let timeRemaining = WAIT_TIME / 1000;
+                waitTimerRef.current = setInterval(() => {
+                    timeRemaining--;
+                    setTimeLeft(timeRemaining);
+                    if (timeRemaining <= 0) {
+                        clearInterval(waitTimerRef.current);
+                    }
+                }, 1000);
+
+                // Start listening
+                if (isSpeechRecognitionSupported()) {
+                    startListeningForWord();
+                }
+
+                // Set timer to read aloud again after WAIT_TIME
+                timerRef.current = setTimeout(() => {
+                    stopListening();
+                    setIsWaiting(false);
+                    setIsListening(false);
+                    setFeedback('Posłuchaj jeszcze raz:');
                     
-                    // Move to next word after reading
-                    setTimeout(() => {
-                        setCurrentWordIndex(prev => prev + 1);
-                    }, NEXT_WORD_DELAY);
-                }, SPEECH_DELAY);
-            }
-        }, WAIT_TIME);
+                    // Check if we still have valid words and index
+                    if (words.length > 0 && currentWordIndex < words.length) {
+                        // Read the current word aloud again
+                        setTimeout(() => {
+                            speakText(words[currentWordIndex]);
+                            
+                            // Move to next word after reading
+                            setTimeout(() => {
+                                setCurrentWordIndex(prev => prev + 1);
+                            }, NEXT_WORD_DELAY);
+                        }, SPEECH_DELAY);
+                    }
+                }, WAIT_TIME);
+            }, 1500); // Wait 1.5s after first reading before starting to listen
+        }, SPEECH_DELAY);
     };
 
     const startListeningForWord = () => {
@@ -220,7 +232,7 @@ export function ReadingModeArea({ onBackToStart }) {
 
             <div className="game-card">
                 <div className="instruction">
-                    Przeczytaj słowo na głos. Podświetlone słowo to słowo, które powinieneś przeczytać.
+                    Najpierw posłuchaj, potem przeczytaj słowo na głos. Podświetlone słowo podąża za Twoim czytaniem.
                 </div>
 
                 <div className="reading-sentence">
@@ -262,7 +274,7 @@ export function ReadingModeArea({ onBackToStart }) {
                             checked={highlightSimilar}
                             onChange={(e) => setHighlightSimilar(e.target.checked)}
                         />
-                        <span>Podświetl podobne słowa</span>
+                        <span>Podświetl takie same słowa</span>
                     </label>
 
                     <button 
