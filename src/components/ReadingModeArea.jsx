@@ -28,6 +28,7 @@ export function ReadingModeArea({ onBackToStart }) {
     const [correctCount, setCorrectCount] = useState(0);
     const [incorrectCount, setIncorrectCount] = useState(0);
     const [highlightSimilar, setHighlightSimilar] = useState(false);
+    const [wordResults, setWordResults] = useState([]); // Track result for each word: true=correct, false=incorrect, null=not attempted
     const [skipFirstReading, setSkipFirstReading] = useState(false);
     const [complexityLevel, setComplexityLevel] = useState(1);
     const [similarWordIndices, setSimilarWordIndices] = useState([]);
@@ -91,6 +92,7 @@ export function ReadingModeArea({ onBackToStart }) {
         setIsWaiting(false);
         setHasReceivedInput(false);
         setTimeLeft(WAIT_TIME / 1000);
+        setWordResults(new Array(newWords.length).fill(null)); // Initialize results for all words
         
         if (timerRef.current) clearTimeout(timerRef.current);
         if (waitTimerRef.current) clearInterval(waitTimerRef.current);
@@ -146,6 +148,13 @@ export function ReadingModeArea({ onBackToStart }) {
             setIsListening(false);
             setFeedback('❌ Nie udało się.');
             setIncorrectCount(prev => prev + 1);
+            
+            // Mark word as incorrect
+            setWordResults(prev => {
+                const newResults = [...prev];
+                newResults[currentWordIndex] = false;
+                return newResults;
+            });
             
             // Show feedback for 2 seconds, then read word and move on
             setTimeout(() => {
@@ -245,6 +254,13 @@ export function ReadingModeArea({ onBackToStart }) {
                             setFeedback('✅ Świetnie!');
                             setCorrectCount(prev => prev + 1);
                             
+                            // Mark word as correct
+                            setWordResults(prev => {
+                                const newResults = [...prev];
+                                newResults[currentWordIndex] = true;
+                                return newResults;
+                            });
+                            
                             // Move to next word with smooth transition
                             setTimeout(() => {
                                 setCurrentWordIndex(prev => prev + 1);
@@ -291,6 +307,12 @@ export function ReadingModeArea({ onBackToStart }) {
         }
         if (index < currentWordIndex) {
             classes.push('reading-word-completed');
+            // Add correct or incorrect class based on result
+            if (wordResults[index] === true) {
+                classes.push('reading-word-correct');
+            } else if (wordResults[index] === false) {
+                classes.push('reading-word-incorrect');
+            }
         }
         if (highlightSimilar && similarWordIndices.includes(index)) {
             classes.push('reading-word-similar');

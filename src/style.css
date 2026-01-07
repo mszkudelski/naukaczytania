@@ -578,9 +578,16 @@ body {
 }
 
 .reading-word-completed {
-    color: var(--success-color);
     text-decoration: line-through;
-    opacity: 0.6;
+    opacity: 0.7;
+}
+
+.reading-word-correct {
+    color: var(--success-color);
+}
+
+.reading-word-incorrect {
+    color: var(--danger-color);
 }
 
 .reading-word-similar {
