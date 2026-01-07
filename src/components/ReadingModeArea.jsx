@@ -25,11 +25,19 @@ export function ReadingModeArea({ onBackToStart }) {
     
     const timerRef = useRef(null);
     const waitTimerRef = useRef(null);
+    const isMountedRef = useRef(true);
 
     // Initialize with a random sentence
     useEffect(() => {
         loadNewSentence();
     }, []);
+
+    // Start waiting for word when sentence is loaded
+    useEffect(() => {
+        if (words.length > 0 && currentWordIndex === 0 && !isWaiting) {
+            startWaitingForWord(0, words);
+        }
+    }, [words]);
 
     // Update similar words when current word changes
     useEffect(() => {
@@ -44,6 +52,7 @@ export function ReadingModeArea({ onBackToStart }) {
     // Cleanup on unmount
     useEffect(() => {
         return () => {
+            isMountedRef.current = false;
             stopListening();
             if (timerRef.current) clearTimeout(timerRef.current);
             if (waitTimerRef.current) clearInterval(waitTimerRef.current);
@@ -63,13 +72,13 @@ export function ReadingModeArea({ onBackToStart }) {
         
         if (timerRef.current) clearTimeout(timerRef.current);
         if (waitTimerRef.current) clearInterval(waitTimerRef.current);
-        
-        // Start waiting and listening for the first word
-        startWaitingForWord();
     };
 
-    const startWaitingForWord = () => {
-        if (currentWordIndex >= words.length) {
+    const startWaitingForWord = (wordIndex, wordsArray) => {
+        const idx = wordIndex !== undefined ? wordIndex : currentWordIndex;
+        const wordsToUse = wordsArray || words;
+        
+        if (idx >= wordsToUse.length) {
             // All words completed
             setFeedback('Świetnie! Przeczytałeś całe zdanie! 🎉');
             setTimeout(() => {
@@ -152,17 +161,20 @@ export function ReadingModeArea({ onBackToStart }) {
             },
             () => {
                 // On end - restart listening if still waiting
-                if (isWaiting && currentWordIndex < words.length) {
-                    setTimeout(() => {
-                        if (isWaiting) {
-                            startListeningForWord();
-                        }
-                    }, 100);
-                }
+                // Only restart if we're still waiting and haven't encountered an error
+                setTimeout(() => {
+                    if (isMountedRef.current && isWaiting && currentWordIndex < words.length && isListening) {
+                        startListeningForWord();
+                    }
+                }, 100);
             },
             (error) => {
                 console.error('Speech recognition error:', error);
                 setIsListening(false);
+                // Don't restart on permission errors
+                if (error === 'not-allowed') {
+                    return;
+                }
             }
         );
     };
