@@ -53,6 +53,13 @@ export function ReadingModeArea({ onBackToStart }) {
         }
     }, [words]);
 
+    // Start waiting for word when currentWordIndex changes
+    useEffect(() => {
+        if (words.length > 0 && currentWordIndex > 0 && currentWordIndex < words.length) {
+            startWaitingForWord(currentWordIndex, words);
+        }
+    }, [currentWordIndex]);
+
     // Update similar words when current word changes
     useEffect(() => {
         if (highlightSimilar && words.length > 0 && currentWordIndex < words.length) {
