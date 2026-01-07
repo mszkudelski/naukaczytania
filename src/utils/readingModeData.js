@@ -3,20 +3,16 @@ const level1Words = ['mama', 'tata', 'kot', 'pies', 'dom', 'ma', 'lubi', 'sok', 
 const level1Verbs = ['ma', 'lubi', 'widzi', 'woła'];
 const level1Nouns = ['mama', 'tata', 'kot', 'pies', 'dom', 'sok', 'mleko', 'balon', 'auto'];
 
-// Similarity threshold for word matching
-const SIMILARITY_THRESHOLD = 2;
-
 // Function to generate text with repeated words (2-3 sentences)
 export function getRandomSentence() {
     // Pick 2-3 common words to repeat
     const commonWords = [];
     const numCommonWords = Math.floor(Math.random() * 2) + 2; // 2 or 3 common words
     
-    for (let i = 0; i < numCommonWords; i++) {
-        const word = level1Nouns[Math.floor(Math.random() * level1Nouns.length)];
-        if (!commonWords.includes(word)) {
-            commonWords.push(word);
-        }
+    // Shuffle and pick unique words
+    const shuffledNouns = [...level1Nouns].sort(() => Math.random() - 0.5);
+    for (let i = 0; i < Math.min(numCommonWords, shuffledNouns.length); i++) {
+        commonWords.push(shuffledNouns[i]);
     }
     
     // Generate 2-3 sentences using these common words

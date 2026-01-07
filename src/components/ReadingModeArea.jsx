@@ -99,8 +99,8 @@ export function ReadingModeArea({ onBackToStart }) {
 
         // First, read the word aloud
         setTimeout(() => {
-            if (words[currentWordIndex]) {
-                speakText(words[currentWordIndex]);
+            if (wordsToUse[idx]) {
+                speakText(wordsToUse[idx]);
             }
             
             // After reading, start listening and countdown
