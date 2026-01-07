@@ -46,6 +46,13 @@ export function ReadingModeArea({ onBackToStart }) {
     useEffect(() => {
         loadNewSentence();
     }, []);
+    
+    // Reload sentence when complexity level changes
+    useEffect(() => {
+        if (complexityLevel !== 1) { // Skip on initial load (already loaded in first useEffect)
+            loadNewSentence();
+        }
+    }, [complexityLevel]);
 
     // Start waiting for word when sentence is loaded
     useEffect(() => {
@@ -89,6 +96,20 @@ export function ReadingModeArea({ onBackToStart }) {
     }, []);
 
     const loadNewSentence = () => {
+        // Stop all ongoing processes first
+        stopListening();
+        setIsListening(false);
+        setIsWaiting(false);
+        
+        // Clear all timers
+        if (timerRef.current) clearTimeout(timerRef.current);
+        if (waitTimerRef.current) clearInterval(waitTimerRef.current);
+        if (inputTimeoutRef.current) clearTimeout(inputTimeoutRef.current);
+        
+        // Reset flag
+        wordMatchedRef.current = false;
+        
+        // Load new sentence
         const newSentence = getRandomSentence(complexityLevel);
         const newWords = sentenceToWords(newSentence);
         setSentence(newSentence);
@@ -96,13 +117,9 @@ export function ReadingModeArea({ onBackToStart }) {
         setCurrentWordIndex(0);
         setRecognizedText('');
         setFeedback('');
-        setIsWaiting(false);
         setHasReceivedInput(false);
         setTimeLeft(WAIT_TIME / 1000);
         setWordResults(new Array(newWords.length).fill(null)); // Initialize results for all words
-        
-        if (timerRef.current) clearTimeout(timerRef.current);
-        if (waitTimerRef.current) clearInterval(waitTimerRef.current);
     };
 
     const startWaitingForWord = (wordIndex, wordsArray) => {
@@ -215,7 +232,7 @@ export function ReadingModeArea({ onBackToStart }) {
         }
     };
 
-    const handleIncorrectWord = () => {
+    const handleIncorrectWord = (targetWordIndex) => {
         if (!isMountedRef.current) return;
         
         stopListening();
@@ -224,10 +241,10 @@ export function ReadingModeArea({ onBackToStart }) {
         setFeedback('❌ Spróbuj jeszcze raz!');
         setIncorrectCount(prev => prev + 1);
         
-        // Mark word as incorrect
+        // Mark word as incorrect using the passed targetWordIndex
         setWordResults(prev => {
             const newResults = [...prev];
-            newResults[currentWordIndex] = false;
+            newResults[targetWordIndex] = false;
             return newResults;
         });
         
@@ -235,8 +252,8 @@ export function ReadingModeArea({ onBackToStart }) {
         setTimeout(() => {
             if (!isMountedRef.current) return;
             setFeedback('');
-            // Don't repeat - just move to next word
-            setCurrentWordIndex(prev => prev + 1);
+            // Don't repeat - just move to next word using the captured index
+            setCurrentWordIndex(targetWordIndex + 1);
         }, WORD_INCORRECT_DELAY);
     };
 
@@ -245,9 +262,10 @@ export function ReadingModeArea({ onBackToStart }) {
         
         setIsListening(true);
         
-        // Capture current word index in closure to avoid stale state
+        // Capture current word index and state in closure to avoid stale state
         const targetWordIndex = currentWordIndex;
         const targetWord = words[targetWordIndex];
+        let localHasReceivedInput = false;
         
         startListening(
             (results) => {
@@ -258,7 +276,8 @@ export function ReadingModeArea({ onBackToStart }) {
                     const latestResult = results[results.length - 1];
                     
                     // Mark that we received input
-                    if (!hasReceivedInput) {
+                    if (!localHasReceivedInput) {
+                        localHasReceivedInput = true;
                         setHasReceivedInput(true);
                         // Clear the input timeout since user started speaking
                         if (inputTimeoutRef.current) {
@@ -268,7 +287,7 @@ export function ReadingModeArea({ onBackToStart }) {
                         timerRef.current = setTimeout(() => {
                             if (!isMountedRef.current || wordMatchedRef.current) return;
                             // User spoke but word was incorrect
-                            handleIncorrectWord();
+                            handleIncorrectWord(targetWordIndex);
                         }, NO_INPUT_THRESHOLD);
                     }
                     
@@ -318,8 +337,8 @@ export function ReadingModeArea({ onBackToStart }) {
                 if (!isMountedRef.current || wordMatchedRef.current) return;
                 
                 setTimeout(() => {
-                    // Check if we should still be listening for this word
-                    if (isMountedRef.current && isWaiting && currentWordIndex === targetWordIndex && isListening && !wordMatchedRef.current) {
+                    // Check if we should still be listening for this word using captured targetWordIndex
+                    if (isMountedRef.current && isWaiting && !wordMatchedRef.current) {
                         startListeningForWord();
                     }
                 }, RECOGNITION_RETRY_DELAY);
