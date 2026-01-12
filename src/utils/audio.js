@@ -70,6 +70,7 @@ export function speakText(text) {
     
     utterThis.pitch = 1;
     utterThis.rate = 0.8;
+    utterThis.volume = 1.0; // Set volume to maximum
     synth.speak(utterThis);
 }
 

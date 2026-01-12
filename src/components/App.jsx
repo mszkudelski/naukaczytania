@@ -5,6 +5,7 @@ import { useScreenNavigation } from '../hooks/useScreenNavigation';
 import { initializeAudio } from '../utils/audio';
 import { StartScreen } from './StartScreen';
 import { GameArea } from './GameArea';
+import { ReadingModeArea } from './ReadingModeArea';
 import { ResumeModal } from './ResumeModal';
 import { MasterModeModal } from './MasterModeModal';
 import { LevelUpModal } from './LevelUpModal';
@@ -24,6 +25,10 @@ export function App() {
         gameState.initGame(level);
         navigation.goToGame();
         modals.closeMasterModal();
+    };
+
+    const handleStartReadingMode = () => {
+        navigation.goToReadingMode();
     };
 
     const handleResumeGame = () => {
@@ -66,6 +71,7 @@ export function App() {
             {navigation.isOnStartScreen && (
                 <StartScreen
                     onStartGame={handleStartGame}
+                    onStartReadingMode={handleStartReadingMode}
                     onShowMasterMode={modals.openMasterModal}
                 />
             )}
@@ -75,6 +81,12 @@ export function App() {
                     gameState={gameState}
                     onLevelUp={handleLevelUp}
                     onEndGame={handleEndGame}
+                    onBackToStart={handleBackToStart}
+                />
+            )}
+
+            {navigation.isOnReadingMode && (
+                <ReadingModeArea
                     onBackToStart={handleBackToStart}
                 />
             )}
